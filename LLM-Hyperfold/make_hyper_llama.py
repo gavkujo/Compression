@@ -2,6 +2,7 @@ import torch
 from models.hyper_model import HyperLlamaForCausalLM
 from transformers import LlamaConfig
 import time
+import os
 
 def log(msg):
     print(f"[{time.strftime('%H:%M:%S')}] 🔍 {msg}", flush=True)
@@ -72,3 +73,16 @@ if __name__ == "__main__":
         
     
     print(f"Hypernetwork parameters: {hyper_params/1e6:.2f}M")
+
+    SAVE_DIR = "hyperllama-init"
+    log(f"Saving model to {SAVE_DIR}...")
+
+    # Save model weights
+    os.makedirs(SAVE_DIR, exist_ok=True)
+    torch.save(model.state_dict(), f"{SAVE_DIR}/pytorch_model.bin")
+
+    # Save config as a JSON (Hugging Face style)
+    with open(f"{SAVE_DIR}/config.json", "w") as f:
+        f.write(config.to_json_string())
+
+    log("Model and config saved successfully!")
