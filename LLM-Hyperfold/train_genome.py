@@ -1,15 +1,14 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F  # Fixed import
+import torch.nn.functional as F
 import torch.optim as optim
 from tqdm import tqdm
 from transformers import LlamaForCausalLM
-from scripts.utils import quantize_model
 from models.basis_hyper import FactorizedBasisHyperLayer
 import os
 
 # Config
-PRETRAINED_PATH = "hyperllama-init"  # Local path
+PRETRAINED_PATH = "hyperllama-init"
 GENOME_DIM = 96
 HYPER_HIDDEN = 256
 M_BASIS = 32
@@ -20,6 +19,25 @@ LR = 1e-3
 BATCH_SIZE = 8
 SAVE_PATH = "checkpoints/hyperfold_genome.pth"
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+def extract_layer_weights(layer):
+    """Extract weights from a layer, handling missing biases"""
+    weights = {}
+    
+    # Attention weights
+    attn = layer.self_attn
+    weights['q'] = (attn.q_proj.weight.clone(), None)
+    weights['k'] = (attn.k_proj.weight.clone(), None)
+    weights['v'] = (attn.v_proj.weight.clone(), None)
+    weights['o'] = (attn.o_proj.weight.clone(), None)
+    
+    # MLP weights
+    mlp = layer.mlp
+    weights['gate'] = (mlp.gate_proj.weight.clone(), None)
+    weights['up'] = (mlp.up_proj.weight.clone(), None)
+    weights['down'] = (mlp.down_proj.weight.clone(), None)
+    
+    return weights
 
 def main():
     print(f"Using device: {DEVICE}")
@@ -34,22 +52,7 @@ def main():
     print("Extracting weights...")
     orig_weights = []
     for layer in base.model.layers:
-        layer_weights = {}
-        
-        # Attention weights
-        attn = layer.self_attn
-        layer_weights['q'] = (attn.q_proj.weight.clone(), attn.q_proj.bias.clone())
-        layer_weights['k'] = (attn.k_proj.weight.clone(), attn.k_proj.bias.clone())
-        layer_weights['v'] = (attn.v_proj.weight.clone(), attn.v_proj.bias.clone())
-        layer_weights['o'] = (attn.o_proj.weight.clone(), attn.o_proj.bias.clone())
-        
-        # MLP weights
-        mlp = layer.mlp
-        layer_weights['gate'] = (mlp.gate_proj.weight.clone(), mlp.gate_proj.bias.clone())
-        layer_weights['up'] = (mlp.up_proj.weight.clone(), mlp.up_proj.bias.clone())
-        layer_weights['down'] = (mlp.down_proj.weight.clone(), mlp.down_proj.bias.clone())
-        
-        orig_weights.append(layer_weights)
+        orig_weights.append(extract_layer_weights(layer))
     
     num_layers = len(orig_weights)
     del base  # Free up memory
@@ -98,23 +101,18 @@ def main():
             for weight_type, hypernet in hypernets.items():
                 W_true, b_true = orig_weights[layer_idx][weight_type]
                 W_true = W_true.to(DEVICE)
-                b_true = b_true.to(DEVICE) if b_true is not None else None
                 
-                # Generate weights
-                W_gen, b_gen = hypernet(z)
+                # Generate weights - LLaMA doesn't use biases
+                W_gen, _ = hypernet(z)
                 W_gen = W_gen.squeeze(0)
-                b_gen = b_gen.squeeze(0) if b_gen is not None else None
                 
                 # Quantization-aware training in second half
                 if epoch > EPOCHS // 2:
                     W_gen, scale = hypernet.quantize(W_gen, bits=8)
                     W_gen = W_gen.float() / scale
                 
-                # Calculate loss
+                # Calculate loss - only weights, no biases
                 loss = F.mse_loss(W_gen, W_true)
-                if b_true is not None and b_gen is not None:
-                    loss += F.mse_loss(b_gen, b_true)
-                
                 total_loss += loss
         
         # Optimize
