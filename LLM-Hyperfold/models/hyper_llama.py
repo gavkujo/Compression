@@ -31,6 +31,10 @@ class HyperLlamaAttention(LlamaAttention):
         E = config.hidden_size
         self.hidden_size = E  # Store for later use
         
+        # Explicitly set these attributes
+        self.num_heads = config.num_attention_heads
+        self.head_dim = E // self.num_heads
+        
         # Remove original projections
         del self.q_proj, self.k_proj, self.v_proj, self.o_proj
         
@@ -78,10 +82,10 @@ class HyperLlamaAttention(LlamaAttention):
             if use_cache:
                 self.cache[cache_key] = (Wq, Wk, Wv, Wo, bq, bk, bv, bo)
         
-        # Project inputs
-        q = F.linear(hidden_states, Wq, bq)
-        k = F.linear(hidden_states, Wk, bk)
-        v = F.linear(hidden_states, Wv, bv)
+        # Project inputs (without bias since LLaMA doesn't use them)
+        q = F.linear(hidden_states, Wq)
+        k = F.linear(hidden_states, Wk)
+        v = F.linear(hidden_states, Wv)
         
         # Reshape and compute attention
         B, T, _ = hidden_states.shape
@@ -99,7 +103,7 @@ class HyperLlamaAttention(LlamaAttention):
         # Merge heads and output projection
         attn_output = attn_output.transpose(1, 2).contiguous()
         attn_output = attn_output.reshape(B, T, self.hidden_size)  # Use stored hidden_size
-        attn_output = F.linear(attn_output, Wo, bo)
+        attn_output = F.linear(attn_output, Wo)  # No bias
         
         return (attn_output, None, None)
 
@@ -153,12 +157,12 @@ class HyperLlamaMLP(LlamaMLP):
             if use_cache:
                 self.cache[cache_key] = (W_gate, W_up, W_down, b_gate, b_up, b_down)
         
-        # Forward pass
-        gate = F.linear(hidden_states, W_gate, b_gate)
-        up = F.linear(hidden_states, W_up, b_up)
+        # Forward pass (without bias since LLaMA doesn't use them)
+        gate = F.linear(hidden_states, W_gate)
+        up = F.linear(hidden_states, W_up)
         gate_act = F.silu(gate)
         fused = gate_act * up
-        down = F.linear(fused, W_down, b_down)
+        down = F.linear(fused, W_down)
         
         return down
 
