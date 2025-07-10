@@ -4,3 +4,5 @@ datasets
 psutil
 tqdm
 accelerate
+
+sentencepiece
