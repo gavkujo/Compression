@@ -3,10 +3,14 @@ import time
 from models.hyper_model import HyperLlamaForCausalLM
 from transformers import LlamaTokenizer
 from scripts.utils import set_cpu_threads, measure_latency, measure_ram, compute_perplexity, load_compressed
+from datasets import load_dataset
+from scripts.utils import save_compressed
 
 # Config
-MODEL_PATH = "checkpoints/hyperfold_llama"
-TOKENIZER_PATH = "path/to/llama-tokenizer"
+
+from transformers import LlamaTokenizer
+MODEL_PATH = "hyperllama-init"  # Path to the HyperLlama model directory
+TOKENIZER_PATH = "meta-llama/Llama-2-7b-chat-hf"
 CHECKPOINT = "checkpoints/hyperfold_genome.pth"
 PROMPT = "In a world where AI controls everything,"
 MAX_LENGTH = 50
