@@ -64,11 +64,13 @@ if __name__ == "__main__":
     # Estimate hypernetwork parameters
     log("Counting hypernetwork parameters...")
     hyper_params = 0
+    i=1
     for layer in model.model.layers:
         hyper_attn = sum(p.numel() for p in layer.self_attn.parameters())
         hyper_mlp = sum(p.numel() for p in layer.mlp.parameters())
         layer_total = hyper_attn + hyper_mlp
-        log(f"Layer {layer}: {layer_total/1e6:.2f}M params")
+        log(f"Layer {i}: {layer_total/1e6:.2f}M params")
+        i += 1
         hyper_params += layer_total
         
     
