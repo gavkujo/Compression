@@ -12,13 +12,19 @@ VOCAB_SIZE = 32000
 
 def download_corpus():
     if not os.path.exists(CORPUS_FILE):
-        print("Downloading corpus (wikitext-2)...")
-        url = "https://huggingface.co/datasets/wikitext/resolve/main/wikitext-2-raw-v1/test.txt"
+        print("Downloading full wikitext-2 corpus...")
+        urls = [
+            "https://huggingface.co/datasets/wikitext/resolve/main/wikitext-2-raw-v1/train.txt",
+            "https://huggingface.co/datasets/wikitext/resolve/main/wikitext-2-raw-v1/valid.txt",
+            "https://huggingface.co/datasets/wikitext/resolve/main/wikitext-2-raw-v1/test.txt"
+        ]
         with open(CORPUS_FILE, "wb") as f:
-            f.write(requests.get(url).content)
-        print("Corpus downloaded!")
+            for url in urls:
+                f.write(requests.get(url).content)
+                f.write(b"\n")
+        print("########## Corpus downloaded and merged!")
     else:
-        print("Corpus already exists.")
+        print("########## Corpus already exists.")
 
 def train_tokenizer():
     print("Training SentencePiece tokenizer...")
