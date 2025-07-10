@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from transformers.models.llama.modeling_llama import LlamaAttention, LlamaMLP, LlamaRMSNorm
-from basis_hyper import FactorizedBasisHyperLayer
+from .basis_hyper import FactorizedBasisHyperLayer
 
 class SharedGenomeProjection(nn.Module):
     """Shared projection for genome vectors"""
@@ -29,6 +29,7 @@ class HyperLlamaAttention(LlamaAttention):
     ) -> None:
         super().__init__(config, layer_idx)
         E = config.hidden_size
+        self.hidden_size = E  # Store for later use
         
         # Remove original projections
         del self.q_proj, self.k_proj, self.v_proj, self.o_proj
@@ -97,7 +98,7 @@ class HyperLlamaAttention(LlamaAttention):
         
         # Merge heads and output projection
         attn_output = attn_output.transpose(1, 2).contiguous()
-        attn_output = attn_output.reshape(B, T, E)
+        attn_output = attn_output.reshape(B, T, self.hidden_size)  # Use stored hidden_size
         attn_output = F.linear(attn_output, Wo, bo)
         
         return (attn_output, None, None)

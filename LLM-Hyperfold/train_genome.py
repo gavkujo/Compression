@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F  # Fixed import
 import torch.optim as optim
 from tqdm import tqdm
 from transformers import LlamaForCausalLM

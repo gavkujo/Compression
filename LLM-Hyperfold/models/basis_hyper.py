@@ -1,11 +1,10 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from typing import Tuple
 
 class FactorizedBasisHyperLayer(nn.Module):
-    """
-    Factorized basis-decomposition hypernetwork with reduced parameters
-    """
+    """Factorized basis-decomposition hypernetwork with reduced parameters"""
     def __init__(
         self,
         genome_dim: int,
@@ -32,7 +31,7 @@ class FactorizedBasisHyperLayer(nn.Module):
         self.quant_scale = nn.Parameter(torch.ones(1))
         self.quant_zero = nn.Parameter(torch.zeros(1))
 
-    def forward(self, z: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, z: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         single = z.dim() == 1
         if single:
             z = z.unsqueeze(0)

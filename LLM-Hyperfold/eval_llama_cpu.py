@@ -32,11 +32,6 @@ def main():
     model.model.genome.data = ckpt['genome'].to(DEVICE)
     model.load_state_dict(ckpt['hypernets'], strict=False)
     
-    # Apply quantization
-    for module in model.modules():
-        if isinstance(module, FactorizedBasisHyperLayer):
-            module.quantize = True
-    
     # Encode prompt
     input_ids = tokenizer.encode(PROMPT, return_tensors="pt").to(DEVICE)
     

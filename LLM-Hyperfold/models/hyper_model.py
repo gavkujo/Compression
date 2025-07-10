@@ -1,8 +1,9 @@
 import torch
 import torch.nn as nn
 from transformers import LlamaConfig, LlamaPreTrainedModel
+from transformers.models.llama.modeling_llama import LlamaRMSNorm
 from transformers.modeling_outputs import CausalLMOutputWithPast
-from hyper_llama import HyperLlamaAttention, HyperLlamaMLP, SharedGenomeProjection
+from .hyper_llama import HyperLlamaAttention, HyperLlamaMLP, SharedGenomeProjection
 
 class HyperLlamaDecoderLayer(nn.Module):
     """Single decoder layer with hyper-generated weights"""
