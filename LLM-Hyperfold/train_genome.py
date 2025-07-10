@@ -123,7 +123,7 @@ def main():
         print(f"Epoch {epoch+1} Loss: {total_loss.item():.4f}, Rank: {current_rank}")
     
     # Save results
-    os.makedirs(SAVE_PATH, exist_ok=True)
+    os.makedirs(os.path.dirname(SAVE_PATH), exist_ok=True) 
     torch.save({
         'genome': genome.detach().cpu(),
         'hypernets': hypernets.state_dict(),
