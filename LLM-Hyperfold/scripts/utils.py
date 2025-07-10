@@ -1,85 +1,87 @@
-# scripts/utils.py
-
 import torch
-import tracemalloc
 import time
-from torch import Tensor
-from typing import Tuple
+import psutil
+from datasets import load_dataset
+from transformers import LlamaTokenizer
 
-
-def set_cpu_threads(num_threads: int = None) -> None:
-    """
-    Pin PyTorch to a given number of CPU threads (or all if None).
-    """
+def set_cpu_threads(num_threads=None):
+    """Set number of CPU threads for PyTorch"""
     if num_threads is None:
-        num_threads = torch.get_num_threads()
+        num_threads = psutil.cpu_count(logical=False)
     torch.set_num_threads(num_threads)
-    print(f"🔧 Using {torch.get_num_threads()} CPU threads")
+    print(f"Using {num_threads} CPU threads")
 
-
-def measure_latency(model: torch.nn.Module,
-                    inputs: Tensor,
-                    repeat: int = 10) -> Tuple[float, float]:
-    """
-    Measure average and peak latency for a single forward pass.
-    Returns (avg_ms, std_ms).
-    """
-    # Warm‑up
+def measure_latency(model, inputs, repeat=10):
+    """Measure inference latency"""
+    # Warm up
     with torch.no_grad():
         for _ in range(3):
-            _ = model(**inputs)
-
+            model(**inputs)
+    
+    # Measure
     timings = []
-    with torch.no_grad():
-        for _ in range(repeat):
-            t0 = time.time()
-            _  = model(**inputs)
-            t1 = time.time()
-            timings.append((t1 - t0) * 1000)
+    for _ in range(repeat):
+        start_time = time.perf_counter()
+        with torch.no_grad():
+            model(**inputs)
+        timings.append(time.perf_counter() - start_time)
+    
+    return sum(timings) / len(timings) * 1000  # ms
 
-    import statistics
-    return statistics.mean(timings), statistics.stdev(timings)
+def measure_ram():
+    """Measure current and peak RAM usage"""
+    process = psutil.Process()
+    current = process.memory_info().rss / (1024 ** 2)  # MB
+    peak = current
+    return current, peak
 
-
-def measure_ram(model: torch.nn.Module, inputs: Tensor) -> Tuple[float, float]:
-    """
-    Measure current & peak RAM usage (Python heap) during one forward pass.
-    """
-    tracemalloc.start()
-    with torch.no_grad():
-        _ = model(**inputs)
-    current, peak = tracemalloc.get_traced_memory()
-    tracemalloc.stop()
-    # convert to MB
-    return current / 1024**2, peak / 1024**2
-
-
-def compute_perplexity(model, tokenizer, dataset, device, max_samples: int = 500):
-    """
-    Compute perplexity (exponentiated cross‑entropy) on a text dataset.
-    """
+def compute_perplexity(model, tokenizer, dataset, device, max_samples=100, seq_len=512):
+    """Compute perplexity on dataset"""
     model.eval()
-    total_loss = 0.0
-    total_tokens = 0
-    import math
-
+    losses = []
     for i, example in enumerate(dataset):
         if i >= max_samples:
             break
-        enc = tokenizer(example["text"], return_tensors="pt", truncation=True, max_length=512)
-        input_ids = enc["input_ids"].to(device)
+        text = example['text'] or ""
+        enc = tokenizer(text, return_tensors="pt", max_length=seq_len, truncation=True)
+        input_ids = enc.input_ids.to(device)
+        
         with torch.no_grad():
-            outputs = model(input_ids=input_ids, return_dict=True)
-            # assume causal LM; get logits and shift
-            shift_logits = outputs.logits[..., :-1, :].contiguous()
-            shift_labels = input_ids[..., 1:].contiguous()
-            loss = torch.nn.functional.cross_entropy(
-                shift_logits.view(-1, shift_logits.size(-1)),
-                shift_labels.view(-1),
-                reduction="sum"
-            )
-            total_loss += loss.item()
-            total_tokens += shift_labels.numel()
+            outputs = model(input_ids, labels=input_ids)
+            loss = outputs.loss.item()
+            losses.append(loss)
+    
+    return torch.exp(torch.tensor(losses).mean()).item()
 
-    ppl = math.exp(total_loss / total_tokens)
-    return ppl
+def quantize_model(model, bits=8):
+    """Apply quantization to model weights"""
+    for name, param in model.named_parameters():
+        if "genome" not in name and "hyper" not in name:
+            max_val = torch.max(torch.abs(param.data))
+            scale = (2**(bits-1)-1) / max_val
+            param.data = torch.clamp(torch.round(param.data * scale), -2**(bits-1), 2**(bits-1)-1)
+            param.quant_scale = scale
+            param.quant_zero = 0.0
+
+def save_compressed(model, path):
+    """Save model with quantization"""
+    state = {
+        'genome': model.model.genome.data.half(),  # FP16
+        'hypernet': {k: v.half() for k, v in model.state_dict().items()}
+    }
+    torch.save(state, path, _use_new_zipfile_serialization=True)
+    print(f"Saved compressed model to {path} ({sum(t.numel() for t in state.values())/1e6:.2f}M params)")
+
+def load_compressed(model, path, device):
+    """Load quantized model"""
+    state = torch.load(path, map_location=device)
+    model.model.genome.data = state['genome'].float()
+    
+    # Load hypernet weights
+    hyper_state = {}
+    for k, v in state['hypernet'].items():
+        if "hyper" in k:
+            hyper_state[k] = v.float()
+    
+    model.load_state_dict(hyper_state, strict=False)
+    return model

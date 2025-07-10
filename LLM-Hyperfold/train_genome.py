@@ -1,99 +1,140 @@
-# train_genome.py
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from transformers import LlamaModel
-from models.basis_hyper import BasisHyperLayer
+from tqdm import tqdm
+from transformers import LlamaForCausalLM
+from scripts.utils import quantize_model
+from models.basis_hyper import FactorizedBasisHyperLayer
+import os
 
-# ─── CONFIG ────────────────────────────────────────────────────────────────
-PRETRAINED_NAME = "EleutherAI/gpt-j-6b"
-GENOME_DIM      = 64
-M_BASIS         = 128
-HIDDEN_DIM      = 256
-LR              = 1e-3
-EPOCHS          = 5
-DEVICE          = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-SAVE_PATH       = "checkpoints/genome_meta.pth"
+# Config
+PRETRAINED_PATH = "path/to/llama-7b"  # Local path
+GENOME_DIM = 96
+HYPER_HIDDEN = 256
+M_BASIS = 32
+RANK_START = 64
+RANK_END = 32
+EPOCHS = 10
+LR = 1e-3
+BATCH_SIZE = 8
+SAVE_PATH = "checkpoints/hyperfold_genome.pth"
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# ─── LOAD PRETRAINED LLaMA ─────────────────────────────────────────────────
-base = LlamaModel.from_pretrained(PRETRAINED_NAME, torch_dtype=torch.float32)
-base.eval().to(DEVICE)
+def main():
+    print(f"Using device: {DEVICE}")
+    
+    # Load pretrained model
+    print("Loading pretrained model...")
+    base = LlamaForCausalLM.from_pretrained(PRETRAINED_PATH)
+    base.to(DEVICE)
+    base.eval()
+    
+    # Extract weights
+    print("Extracting weights...")
+    orig_weights = []
+    for layer in base.model.layers:
+        layer_weights = {}
+        
+        # Attention weights
+        attn = layer.self_attn
+        layer_weights['q'] = (attn.q_proj.weight.clone(), attn.q_proj.bias.clone())
+        layer_weights['k'] = (attn.k_proj.weight.clone(), attn.k_proj.bias.clone())
+        layer_weights['v'] = (attn.v_proj.weight.clone(), attn.v_proj.bias.clone())
+        layer_weights['o'] = (attn.o_proj.weight.clone(), attn.o_proj.bias.clone())
+        
+        # MLP weights
+        mlp = layer.mlp
+        layer_weights['gate'] = (mlp.gate_proj.weight.clone(), mlp.gate_proj.bias.clone())
+        layer_weights['up'] = (mlp.up_proj.weight.clone(), mlp.up_proj.bias.clone())
+        layer_weights['down'] = (mlp.down_proj.weight.clone(), mlp.down_proj.bias.clone())
+        
+        orig_weights.append(layer_weights)
+    
+    num_layers = len(orig_weights)
+    del base  # Free up memory
+    print(f"Extracted weights for {num_layers} layers")
+    
+    # Initialize genome and hypernets
+    genome = nn.Parameter(torch.randn(num_layers, GENOME_DIM, device=DEVICE))
+    hypernets = nn.ModuleDict()
+    
+    # Create hypernets for each weight type
+    for weight_type in ['q', 'k', 'v', 'o', 'gate', 'up', 'down']:
+        W, _ = orig_weights[0][weight_type]
+        hypernets[weight_type] = FactorizedBasisHyperLayer(
+            genome_dim=GENOME_DIM,
+            hidden_dim=HYPER_HIDDEN,
+            out_dim=W.size(0),
+            in_dim=W.size(1),
+            M=M_BASIS,
+            rank=RANK_START
+        ).to(DEVICE)
+    
+    # Optimizer
+    opt = optim.AdamW([
+        {'params': genome, 'lr': LR},
+        {'params': hypernets.parameters(), 'lr': LR}
+    ])
+    
+    # Progressive rank schedule
+    ranks = torch.linspace(RANK_START, RANK_END, EPOCHS).int().tolist()
+    
+    # Training loop
+    print("Starting training...")
+    for epoch in range(EPOCHS):
+        total_loss = 0.0
+        current_rank = ranks[epoch]
+        
+        # Update hypernet ranks
+        for hypernet in hypernets.values():
+            hypernet.set_rank(current_rank)
+        
+        # Process each layer
+        for layer_idx in tqdm(range(num_layers), desc=f"Epoch {epoch+1}/{EPOCHS}"):
+            z = genome[layer_idx].unsqueeze(0)  # [1, genome_dim]
+            
+            # Reconstruct all weights for this layer
+            for weight_type, hypernet in hypernets.items():
+                W_true, b_true = orig_weights[layer_idx][weight_type]
+                W_true = W_true.to(DEVICE)
+                b_true = b_true.to(DEVICE) if b_true is not None else None
+                
+                # Generate weights
+                W_gen, b_gen = hypernet(z)
+                W_gen = W_gen.squeeze(0)
+                b_gen = b_gen.squeeze(0) if b_gen is not None else None
+                
+                # Quantization-aware training in second half
+                if epoch > EPOCHS // 2:
+                    W_gen, scale = hypernet.quantize(W_gen, bits=8)
+                    W_gen = W_gen.float() / scale
+                
+                # Calculate loss
+                loss = F.mse_loss(W_gen, W_true)
+                if b_true is not None and b_gen is not None:
+                    loss += F.mse_loss(b_gen, b_true)
+                
+                total_loss += loss
+        
+        # Optimize
+        opt.zero_grad()
+        total_loss.backward()
+        opt.step()
+        
+        print(f"Epoch {epoch+1} Loss: {total_loss.item():.4f}, Rank: {current_rank}")
+    
+    # Save results
+    torch.save({
+        'genome': genome.detach().cpu(),
+        'hypernets': hypernets.state_dict(),
+        'config': {
+            'genome_dim': GENOME_DIM,
+            'hyper_hidden': HYPER_HIDDEN,
+            'M': M_BASIS,
+            'rank': RANK_END
+        }
+    }, SAVE_PATH)
+    print(f"Training complete! Saved to {SAVE_PATH}")
 
-# 1) Extract original weights
-orig_attn, orig_mlp = [], []
-for layer in base.model.layers:
-    a = layer.self_attn
-    orig_attn.append({
-        'q': (a.q_proj.weight.data.clone(), a.q_proj.bias.data.clone()),
-        'k': (a.k_proj.weight.data.clone(), a.k_proj.bias.data.clone()),
-        'v': (a.v_proj.weight.data.clone(), a.v_proj.bias.data.clone()),
-        'o': (a.o_proj.weight.data.clone(), a.o_proj.bias.data.clone()),
-    })
-    m = layer.mlp
-    orig_mlp.append({
-        'up':   (m.up_proj.weight.data.clone(),   m.up_proj.bias.data.clone()),
-        'down': (m.down_proj.weight.data.clone(), m.down_proj.bias.data.clone()),
-    })
-
-num_layers = len(orig_attn)
-
-# 2) Initialize genome + hypernets
-z = nn.Parameter(torch.randn(num_layers, GENOME_DIM, device=DEVICE))
-hyper_attn = nn.ModuleList([
-    nn.ModuleDict({
-        p: BasisHyperLayer(GENOME_DIM, HIDDEN_DIM,
-                           orig_attn[i][p][0].size(0),
-                           orig_attn[i][p][0].size(1), M=M_BASIS)
-        for p in orig_attn[i]
-    })
-    for i in range(num_layers)
-]).to(DEVICE)
-
-hyper_mlp = nn.ModuleList([
-    nn.ModuleDict({
-        p: BasisHyperLayer(GENOME_DIM, HIDDEN_DIM,
-                           orig_mlp[i][p][0].size(0),
-                           orig_mlp[i][p][0].size(1), M=M_BASIS)
-        for p in orig_mlp[i]
-    })
-    for i in range(num_layers)
-]).to(DEVICE)
-
-# 3) Optimizer & loss
-opt = optim.Adam([z] + list(hyper_attn.parameters()) + list(hyper_mlp.parameters()), lr=LR)
-crit = nn.MSELoss()
-
-# 4) Meta-training loop
-print("🔨 Meta-training genome...")
-for epoch in range(1, EPOCHS+1):
-    total_loss = 0.0
-
-    for i in range(num_layers):
-        zi = z[i].unsqueeze(0)  # shape [1, GENOME_DIM]
-
-        # reconstruct attn
-        for p, (W_true, b_true) in orig_attn[i].items():
-            W_gen, b_gen = hyper_attn[i][p](zi)
-            total_loss += crit(W_gen, W_true.unsqueeze(0).to(DEVICE))
-            total_loss += crit(b_gen, b_true.unsqueeze(0).to(DEVICE))
-
-        # reconstruct mlp
-        for p, (W_true, b_true) in orig_mlp[i].items():
-            W_gen, b_gen = hyper_mlp[i][p](zi)
-            total_loss += crit(W_gen, W_true.unsqueeze(0).to(DEVICE))
-            total_loss += crit(b_gen, b_true.unsqueeze(0).to(DEVICE))
-
-    opt.zero_grad()
-    total_loss.backward()
-    opt.step()
-
-    print(f"Epoch {epoch}/{EPOCHS} — Loss: {total_loss.item():.4f}")
-
-# 5) Save genome + hypernet
-torch.save({
-    'z': z.detach().cpu(),
-    'hyper_attn': hyper_attn.state_dict(),
-    'hyper_mlp':  hyper_mlp.state_dict(),
-}, SAVE_PATH)
-print("✅ Genome meta-training complete. Saved to", SAVE_PATH)
+if __name__ == "__main__":
+    main()

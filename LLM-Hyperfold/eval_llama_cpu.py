@@ -1,75 +1,73 @@
-# eval_llama_cpu.py
-
-import os
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from transformers import LlamaConfig, LlamaTokenizer
-from torch.utils.data import DataLoader
-from datasets import load_dataset
+import time
+from models.hyper_model import HyperLlamaForCausalLM
+from transformers import LlamaTokenizer
+from scripts.utils import set_cpu_threads, measure_latency, measure_ram, compute_perplexity, load_compressed
 
-from models.hyper_llama import HyperLlamaAttention, HyperLlamaMLP
-from scripts.utils import set_cpu_threads, measure_latency, measure_ram, compute_perplexity
-
-
-# ─── CONFIG ────────────────────────────────────────────────────────────────
-PRETRAINED_NAME = "decapoda-research/llama-7b"
-CHECKPOINT_PATH = "checkpoints/genome_meta.pth"
-PROMPT         = "In a distant future, humanity"
-BATCH_SIZE     = 1   # for prompt inference
-NUM_THREADS    = None  # None → max available
-DEVICE         = torch.device("cpu")
-
-
-def build_hyperfolded_llama():
-    # load base config
-    cfg = LlamaConfig.from_pretrained(PRETRAINED_NAME)
-    # inject our HyperDecoderLayer
-    # assume you’ve patched the code so config knows to use it:
-    # e.g. config.decoder_layer_cls = HyperDecoderLayer
-    model = torch.hub.load("your-org/LLM-HyperFold", "hyper_llama_model", config=cfg)
-    model.to(DEVICE)
-    return model
-
-
-def load_genome_and_hypernet(model, path: str):
-    ckpt = torch.load(path, map_location=DEVICE)
-    # genome vector
-    model.z = nn.Parameter(ckpt['z'].to(DEVICE))
-    # load hypernet states
-    model.hyper_attn.load_state_dict(ckpt['hyper_attn'])
-    model.hyper_mlp.load_state_dict(ckpt['hyper_mlp'])
-
+# Config
+MODEL_PATH = "checkpoints/hyperfold_llama"
+TOKENIZER_PATH = "path/to/llama-tokenizer"
+CHECKPOINT = "checkpoints/hyperfold_genome.pth"
+PROMPT = "In a world where AI controls everything,"
+MAX_LENGTH = 50
+NUM_THREADS = 4  # Adjust based on your CPU
+DEVICE = torch.device("cpu")
+COMPRESSED_PATH = "checkpoints/compressed_model.pt"
 
 def main():
-    # 1) threading
+    # Set CPU threads
     set_cpu_threads(NUM_THREADS)
-
-    # 2) tokenizer
-    tokenizer = LlamaTokenizer.from_pretrained(PRETRAINED_NAME)
-
-    # 3) build model
-    print("🔨 Building hyperfolded LLaMA…")
-    model = build_hyperfolded_llama()
-    load_genome_and_hypernet(model, CHECKPOINT_PATH)
+    
+    # Load tokenizer
+    tokenizer = LlamaTokenizer.from_pretrained(TOKENIZER_PATH)
+    
+    # Load model
+    print("Loading model...")
+    model = HyperLlamaForCausalLM.from_pretrained(MODEL_PATH)
+    model.to(DEVICE)
     model.eval()
-
-    # 4) sample inference
-    enc = tokenizer(PROMPT, return_tensors="pt")
-    inputs = {"input_ids": enc["input_ids"].to(DEVICE)}
-
-    avg_lat, std_lat = measure_latency(model, inputs, repeat=5)
-    cur_ram, peak_ram = measure_ram(model, inputs)
-
-    print(f"⏱️ Prompt latency: {avg_lat:.1f}±{std_lat:.1f} ms")
-    print(f"💾 Mem usage: current {cur_ram:.2f} MB; peak {peak_ram:.2f} MB")
-
-    # 5) Perplexity on WikiText2
-    print("📊 Computing perplexity on WikiText2…")
-    ds = load_dataset("wikitext", "wikitext-2-raw-v1", split="test")
-    ppl = compute_perplexity(model, tokenizer, ds, DEVICE, max_samples=200)
-    print(f"🏅 Perplexity: {ppl:.2f}")
-
+    
+    # Load genome and hypernets
+    ckpt = torch.load(CHECKPOINT, map_location=DEVICE)
+    model.model.genome.data = ckpt['genome'].to(DEVICE)
+    model.load_state_dict(ckpt['hypernets'], strict=False)
+    
+    # Apply quantization
+    for module in model.modules():
+        if isinstance(module, FactorizedBasisHyperLayer):
+            module.quantize = True
+    
+    # Encode prompt
+    input_ids = tokenizer.encode(PROMPT, return_tensors="pt").to(DEVICE)
+    
+    # Inference with caching
+    start_time = time.time()
+    with torch.no_grad():
+        output_ids = model.generate(
+            input_ids, 
+            max_length=MAX_LENGTH,
+            use_cache=True  # Enable weight caching
+        )
+    total_time = time.time() - start_time
+    
+    # Decode and print
+    output_text = tokenizer.decode(output_ids[0], skip_special_tokens=True)
+    print("\nGenerated text:")
+    print(output_text)
+    print(f"\nTotal time: {total_time:.2f}s")
+    print(f"Time per token: {total_time / (MAX_LENGTH - input_ids.size(1)) * 1000:.1f}ms")
+    
+    # Memory usage
+    current_ram, peak_ram = measure_ram()
+    print(f"RAM usage: Current={current_ram:.2f}MB, Peak={peak_ram:.2f}MB")
+    
+    # Perplexity measurement
+    dataset = load_dataset("wikitext", "wikitext-2-raw-v1", split="test")
+    ppl = compute_perplexity(model, tokenizer, dataset, DEVICE, max_samples=100)
+    print(f"Perplexity: {ppl:.2f}")
+    
+    # Save compressed version
+    save_compressed(model, COMPRESSED_PATH)
 
 if __name__ == "__main__":
     main()

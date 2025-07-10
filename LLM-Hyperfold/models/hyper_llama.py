@@ -1,152 +1,187 @@
-# models/hyper_llama.py
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch import Tensor
-from transformers.models.llama.modeling_llama import LlamaAttention, LlamaMLP
-from basis_hyper import BasisHyperLayer
+from transformers.models.llama.modeling_llama import LlamaAttention, LlamaMLP, LlamaRMSNorm
+from basis_hyper import FactorizedBasisHyperLayer
 
+class SharedGenomeProjection(nn.Module):
+    """Shared projection for genome vectors"""
+    def __init__(self, genome_dim: int, hidden_dim: int):
+        super().__init__()
+        self.proj = nn.Sequential(
+            nn.Linear(genome_dim, hidden_dim),
+            nn.GELU()
+        )
+    
+    def forward(self, z: torch.Tensor) -> torch.Tensor:
+        return self.proj(z)
 
 class HyperLlamaAttention(LlamaAttention):
-    """
-    LlamaAttention with Q/K/V/O projections generated on-the-fly from a genome vector.
-    Rotary embeddings have been removed for simplicity.
-    """
+    """Attention with hyper-generated weights"""
     def __init__(
         self,
         config,
         layer_idx: int,
-        genome_dim: int,
-        M: int = 64,
-        hidden_dim: int = 128
+        genome_proj: nn.Module,
+        hyper_hidden: int,
+        M: int = 32,
+        rank: int = 64
     ) -> None:
-        # Initialize the base; we won't use its q_proj etc.
         super().__init__(config, layer_idx)
-        # explicitly re‑set these in case the base init didn't (or got wiped)
-        self.num_heads = config.num_attention_heads
-        self.head_dim  = config.hidden_size // self.num_heads
         E = config.hidden_size
-
-        # delete pretrained linear layers
-        del self.q_proj
-        del self.k_proj
-        del self.v_proj
-        del self.o_proj
-
-        # our tiny hypernets
-        self.hyper_q = BasisHyperLayer(genome_dim, hidden_dim, E, E, M)
-        self.hyper_k = BasisHyperLayer(genome_dim, hidden_dim, E, E, M)
-        self.hyper_v = BasisHyperLayer(genome_dim, hidden_dim, E, E, M)
-        self.hyper_o = BasisHyperLayer(genome_dim, hidden_dim, E, E, M)
+        
+        # Remove original projections
+        del self.q_proj, self.k_proj, self.v_proj, self.o_proj
+        
+        # Shared genome projection
+        self.genome_proj = genome_proj
+        
+        # Hypernetworks
+        self.hyper_q = FactorizedBasisHyperLayer(
+            hyper_hidden, hyper_hidden, E, E, M, rank
+        )
+        self.hyper_k = FactorizedBasisHyperLayer(
+            hyper_hidden, hyper_hidden, E, E, M, rank
+        )
+        self.hyper_v = FactorizedBasisHyperLayer(
+            hyper_hidden, hyper_hidden, E, E, M, rank
+        )
+        self.hyper_o = FactorizedBasisHyperLayer(
+            hyper_hidden, hyper_hidden, E, E, M, rank
+        )
+        
+        # Cache for unfolded weights
+        self.cache = {}
 
     def forward(
         self,
-        hidden_states: Tensor,
-        genome_vec: Tensor,
+        hidden_states: torch.Tensor,
+        genome_vec: torch.Tensor,
         attention_mask=None,
-        **kwargs,
+        use_cache=False,
+        **kwargs
     ):
-        """
-        Args:
-          hidden_states: [B, T, E]
-          genome_vec:    [genome_dim] or [B, genome_dim]
-        Returns:
-          attn_output: [B, T, E]
-          None
-          (optionally) attn_probs if output_attentions=True
-        """
-        B, T, E = hidden_states.size()
-
-        # 1) generate weights
-        Wq, bq = self.hyper_q(genome_vec)
-        Wk, bk = self.hyper_k(genome_vec)
-        Wv, bv = self.hyper_v(genome_vec)
-        Wo, bo = self.hyper_o(genome_vec)
-
-        # 2) project
-        q = hidden_states @ Wq.T + bq
-        k = hidden_states @ Wk.T + bk
-        v = hidden_states @ Wv.T + bv
-
-        # 3) reshape to (B, H, T, D)
+        # Project genome
+        z_proj = self.genome_proj(genome_vec)
+        cache_key = tuple(z_proj.flatten().tolist()) if use_cache else None
+        
+        # Check cache
+        if use_cache and cache_key in self.cache:
+            Wq, Wk, Wv, Wo, bq, bk, bv, bo = self.cache[cache_key]
+        else:
+            Wq, bq = self.hyper_q(z_proj)
+            Wk, bk = self.hyper_k(z_proj)
+            Wv, bv = self.hyper_v(z_proj)
+            Wo, bo = self.hyper_o(z_proj)
+            
+            if use_cache:
+                self.cache[cache_key] = (Wq, Wk, Wv, Wo, bq, bk, bv, bo)
+        
+        # Project inputs
+        q = F.linear(hidden_states, Wq, bq)
+        k = F.linear(hidden_states, Wk, bk)
+        v = F.linear(hidden_states, Wv, bv)
+        
+        # Reshape and compute attention
+        B, T, _ = hidden_states.shape
         q = q.view(B, T, self.num_heads, self.head_dim).transpose(1, 2)
         k = k.view(B, T, self.num_heads, self.head_dim).transpose(1, 2)
         v = v.view(B, T, self.num_heads, self.head_dim).transpose(1, 2)
-
-        # 4) attention
-        scores = (q @ k.transpose(-2, -1)) / (self.head_dim ** 0.5)
+        
+        # Attention computation
+        attn_weights = torch.matmul(q, k.transpose(2, 3)) / (self.head_dim ** 0.5)
         if attention_mask is not None:
-            scores = scores + attention_mask
-        attn_probs  = torch.softmax(scores, dim=-1)
-        attn_output = attn_probs @ v  # [B, H, T, D]
-
-        # 5) merge + out proj
-        attn_output = attn_output.transpose(1, 2).reshape(B, T, E)
-        out = attn_output @ Wo.T + bo
-
-        return (out, None, attn_probs) if kwargs.get("output_attentions", False) else (out, None, None)
-
+            attn_weights = attn_weights + attention_mask
+        attn_weights = F.softmax(attn_weights, dim=-1)
+        attn_output = torch.matmul(attn_weights, v)
+        
+        # Merge heads and output projection
+        attn_output = attn_output.transpose(1, 2).contiguous()
+        attn_output = attn_output.reshape(B, T, E)
+        attn_output = F.linear(attn_output, Wo, bo)
+        
+        return (attn_output, None, None)
 
 class HyperLlamaMLP(LlamaMLP):
-    """
-    LlamaMLP with its two Linear layers generated on-the-fly from a genome vector.
-    """
+    """MLP with hyper-generated weights"""
     def __init__(
         self,
         config,
-        genome_dim: int,
-        M: int = 64,
-        hidden_dim: int = 128
-    ) -> None:
+        genome_proj: nn.Module,
+        hyper_hidden: int,
+        M: int = 32,
+        rank: int = 64
+    ):
         super().__init__(config)
-        E     = config.hidden_size
-        inner = config.intermediate_size
+        E = config.hidden_size
+        I = config.intermediate_size
+        
+        # Remove original projections
+        del self.gate_proj, self.up_proj, self.down_proj
+        
+        # Shared genome projection
+        self.genome_proj = genome_proj
+        
+        # Hypernetworks
+        self.hyper_gate = FactorizedBasisHyperLayer(
+            hyper_hidden, hyper_hidden, I, E, M, rank
+        )
+        self.hyper_up = FactorizedBasisHyperLayer(
+            hyper_hidden, hyper_hidden, I, E, M, rank
+        )
+        self.hyper_down = FactorizedBasisHyperLayer(
+            hyper_hidden, hyper_hidden, E, I, M, rank
+        )
+        
+        # Cache for unfolded weights
+        self.cache = {}
 
-        # drop pretrained layers
-        del self.gate_proj
-        del self.up_proj
-        del self.down_proj
+    def forward(self, hidden_states: torch.Tensor, genome_vec: torch.Tensor, use_cache=False):
+        # Project genome
+        z_proj = self.genome_proj(genome_vec)
+        cache_key = tuple(z_proj.flatten().tolist()) if use_cache else None
+        
+        # Check cache
+        if use_cache and cache_key in self.cache:
+            W_gate, W_up, W_down, b_gate, b_up, b_down = self.cache[cache_key]
+        else:
+            W_gate, b_gate = self.hyper_gate(z_proj)
+            W_up, b_up = self.hyper_up(z_proj)
+            W_down, b_down = self.hyper_down(z_proj)
+            
+            if use_cache:
+                self.cache[cache_key] = (W_gate, W_up, W_down, b_gate, b_up, b_down)
+        
+        # Forward pass
+        gate = F.linear(hidden_states, W_gate, b_gate)
+        up = F.linear(hidden_states, W_up, b_up)
+        gate_act = F.silu(gate)
+        fused = gate_act * up
+        down = F.linear(fused, W_down, b_down)
+        
+        return down
 
-        # hypernets for up/down
-        self.hyper_up   = BasisHyperLayer(genome_dim, hidden_dim, inner, E, M)
-        self.hyper_down = BasisHyperLayer(genome_dim, hidden_dim, E, inner, M)
-
-    def forward(self, hidden_states: Tensor, genome_vec: Tensor) -> Tensor:
-        # generate
-        W_up,   b_up   = self.hyper_up(genome_vec)
-        W_down, b_down = self.hyper_down(genome_vec)
-
-        # gate & up
-        x_up   = hidden_states @ W_up.T + b_up
-        x_gate = hidden_states @ W_up.T + b_up  # reuse same hyper; ok for prototype
-        x      = F.silu(x_gate) * x_up
-
-        # down
-        x = x @ W_down.T + b_down
-        return x
-
-
-# ——— Self-test ———
+# Test
 if __name__ == "__main__":
     from transformers import LlamaConfig
-
-    # tiny config
-    config = LlamaConfig(hidden_size=64, intermediate_size=256, num_attention_heads=2)
-    genome_dim, M, hidden_dim = 16, 8, 32
-    B, T = 2, 10
-
-    hs = torch.randn(B, T, config.hidden_size)
-    z  = torch.randn(genome_dim)
-
-    # test attention
-    attn = HyperLlamaAttention(config, layer_idx=0, genome_dim=genome_dim, M=M, hidden_dim=hidden_dim)
-    out, _, _ = attn(hs, z)
-    assert out.shape == (B, T, config.hidden_size)
-
-    # test mlp
-    mlp = HyperLlamaMLP(config, genome_dim, M, hidden_dim)
-    out2 = mlp(hs, z)
-    assert out2.shape == (B, T, config.hidden_size)
-
-    print("✅ hyper_llama.py smoke‑test passed!")
+    
+    config = LlamaConfig(
+        hidden_size=128,
+        intermediate_size=256,
+        num_attention_heads=4,
+        num_hidden_layers=1
+    )
+    
+    genome_proj = SharedGenomeProjection(32, 64)
+    attn = HyperLlamaAttention(config, 0, genome_proj, 64)
+    mlp = HyperLlamaMLP(config, genome_proj, 64)
+    
+    x = torch.randn(2, 10, config.hidden_size)
+    z = torch.randn(32)
+    
+    attn_out = attn(x, z)[0]
+    mlp_out = mlp(x, z)
+    
+    assert attn_out.shape == x.shape
+    assert mlp_out.shape == x.shape
+    print("✅ HyperLlama modules test passed!")

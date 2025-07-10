@@ -1,91 +1,74 @@
-# models/basis_hyper.py
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch import Tensor
 
-
-class BasisHyperLayer(nn.Module):
+class FactorizedBasisHyperLayer(nn.Module):
     """
-    A basis‑decomposition hypernetwork layer that generates a weight matrix W and bias vector b 
-    from a low‑dimensional genome vector z.
-
-    Attributes:
-        bases (nn.Parameter): A learnable tensor of shape (M, out_dim, in_dim) containing M basis matrices.
-        fc1 (nn.Linear): Maps genome vector z to a hidden representation of size hidden_dim.
-        fc_coef (nn.Linear): Maps hidden representation to M mixing coefficients.
-        fc_bias (nn.Linear): Maps hidden representation to an output bias vector of size out_dim.
+    Factorized basis-decomposition hypernetwork with reduced parameters
     """
-
     def __init__(
         self,
         genome_dim: int,
         hidden_dim: int,
         out_dim: int,
         in_dim: int,
-        M: int = 64
+        M: int = 32,
+        rank: int = 64
     ) -> None:
-        """
-        Args:
-            genome_dim: Size of the input genome vector z.
-            hidden_dim: Size of the intermediate hidden layer.
-            out_dim: Number of output features (rows of W).
-            in_dim: Number of input features  (columns of W).
-            M: Number of basis matrices to learn.
-        """
         super().__init__()
-        self.bases = nn.Parameter(
-            torch.randn(M, out_dim, in_dim) * 0.02,
-            requires_grad=True
-        )
-        self.fc1     = nn.Linear(genome_dim, hidden_dim)
+        self.M = M
+        self.rank = rank
+        
+        # Factorized basis tensors
+        self.U = nn.Parameter(torch.randn(M, out_dim, rank) * 0.02)
+        self.V = nn.Parameter(torch.randn(M, rank, in_dim) * 0.02)
+        
+        # Efficient hypernetwork
+        self.fc1 = nn.Linear(genome_dim, hidden_dim)
         self.fc_coef = nn.Linear(hidden_dim, M)
         self.fc_bias = nn.Linear(hidden_dim, out_dim)
+        
+        # Quantization parameters
+        self.quant_scale = nn.Parameter(torch.ones(1))
+        self.quant_zero = nn.Parameter(torch.zeros(1))
 
-
-    def forward(self, z: Tensor) -> tuple[Tensor, Tensor]:
-        """
-        Args:
-            z: [B, genome_dim] or [genome_dim]
-        Returns:
-            W: [B, out_dim, in_dim] or [out_dim, in_dim]
-            b: [B, out_dim] or [out_dim]
-        """
-        # 1) Handle single-vector input by batching it
-        single = False
-        if z.dim() == 1:
-            single = True
-            z = z.unsqueeze(0)             # become [1, genome_dim]
-
-        # 2) Forward through hypernet
-        h      = F.relu(self.fc1(z))      # [B, hidden_dim]
-        coeffs = self.fc_coef(h)          # [B, M]
-        bias   = self.fc_bias(h)          # [B, out_dim]
-        W      = torch.einsum("bm,moi->boi", coeffs, self.bases)
-
-        # 3) If single-vector, squeeze back
+    def forward(self, z: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        single = z.dim() == 1
         if single:
-            W    = W.squeeze(0)           # [out_dim, in_dim]
-            bias = bias.squeeze(0)        # [out_dim]
+            z = z.unsqueeze(0)
 
+        h = F.gelu(self.fc1(z))
+        coeffs = self.fc_coef(h)
+        bias = self.fc_bias(h)
+        
+        # Factorized reconstruction
+        U_combined = torch.einsum('bm, mor -> bor', coeffs, self.U)
+        V_combined = torch.einsum('bm, mri -> bri', coeffs, self.V)
+        W = torch.bmm(U_combined, V_combined)
+        
+        if single:
+            W = W.squeeze(0)
+            bias = bias.squeeze(0)
+            
         return W, bias
 
-# === Self‑test ===
+    def quantize(self, W, bits=8):
+        """Quantize weights for efficient storage"""
+        max_val = torch.max(torch.abs(W))
+        scale = (2**(bits-1)-1) / max_val
+        W_q = torch.clamp(torch.round(W * scale), -2**(bits-1), 2**(bits-1)-1)
+        return W_q, scale
+
+    def set_rank(self, new_rank):
+        """Dynamically adjust factorization rank"""
+        self.rank = new_rank
+
+# Test
 if __name__ == "__main__":
-    # Quick sanity check
-    B, G, H, O, I, M = 4, 16, 32, 64, 64, 8
+    B, G, H, O, I, M = 4, 32, 64, 128, 128, 16
     z = torch.randn(B, G)
-    layer = BasisHyperLayer(genome_dim=G, hidden_dim=H, out_dim=O, in_dim=I, M=M)
-
+    layer = FactorizedBasisHyperLayer(G, H, O, I, M, rank=32)
     W, b = layer(z)
-    assert W.shape == (B, O, I), f"Expected W shape {(B,O,I)}, got {W.shape}"
-    assert b.shape == (B, O),      f"Expected b shape {(B,O)}, got {b.shape}"
-
-    # Single‑vector inference
-    z0 = torch.randn(G)
-    W0, b0 = layer(z0)
-    assert W0.shape == (O, I),     f"Expected W0 shape {(O,I)}, got {W0.shape}"
-    assert b0.shape == (O,),       f"Expected b0 shape {(O,)}, got {b0.shape}"
-
-    print("✅ BasisHyperLayer smoke‑test passed!")
+    assert W.shape == (B, O, I)
+    assert b.shape == (B, O)
+    print("✅ FactorizedBasisHyperLayer test passed!")

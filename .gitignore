@@ -1,2 +1,5 @@
 *.pt
 seq2seqtest/
+llmhyperenv/
+__pycache__/
+*.pyc
