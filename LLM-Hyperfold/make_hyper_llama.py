@@ -1,6 +1,10 @@
 import torch
 from models.hyper_model import HyperLlamaForCausalLM
 from transformers import LlamaConfig
+import time
+
+def log(msg):
+    print(f"[{time.strftime('%H:%M:%S')}] 🔍 {msg}", flush=True)
 
 def build_hyper_llama(
     vocab_size=32000,
@@ -40,12 +44,15 @@ def build_hyper_llama(
 if __name__ == "__main__":
     # Build a ~6B parameter model
     log("Starting HyperLLaMA model build")
+    start_time = time.time()
     model, config = build_hyper_llama(
         hidden_size=4096,
         intermediate_size=11008,
         num_hidden_layers=32,
         num_attention_heads=32
     )
+    elapsed = time.time() - start_time
+    log(f"Model build done in {elapsed:.2f} seconds")
     
     log("Counting total parameters...")
     total_params = sum(p.numel() for p in model.parameters())
