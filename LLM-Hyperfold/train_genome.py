@@ -9,7 +9,7 @@ from models.basis_hyper import FactorizedBasisHyperLayer
 import os
 
 # Config
-PRETRAINED_PATH = "path/to/llama-7b"  # Local path
+PRETRAINED_PATH = "hyperllama-init"  # Local path
 GENOME_DIM = 96
 HYPER_HIDDEN = 256
 M_BASIS = 32
