@@ -46,10 +46,10 @@ if __name__ == "__main__":
     log("Starting HyperLLaMA model build")
     start_time = time.time()
     model, config = build_hyper_llama(
-        hidden_size=4096,
-        intermediate_size=11008,
-        num_hidden_layers=32,
-        num_attention_heads=32
+        hidden_size=1024, #4096 for 6B model
+        intermediate_size=2048, #11008 for 6B model
+        num_hidden_layers=8, #32 layers for 6B model
+        num_attention_heads=8 #32 heads for 6B model
     )
     elapsed = time.time() - start_time
     log(f"Model build done in {elapsed:.2f} seconds")
@@ -67,7 +67,7 @@ if __name__ == "__main__":
         hyper_attn = sum(p.numel() for p in layer.self_attn.parameters())
         hyper_mlp = sum(p.numel() for p in layer.mlp.parameters())
         layer_total = hyper_attn + hyper_mlp
-        log(f"Layer {i}: {layer_total/1e6:.2f}M params")
+        log(f"Layer {layer}: {layer_total/1e6:.2f}M params")
         hyper_params += layer_total
         
     
