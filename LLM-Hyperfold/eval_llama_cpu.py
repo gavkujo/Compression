@@ -10,7 +10,7 @@ from scripts.utils import save_compressed
 
 from transformers import LlamaTokenizer
 MODEL_PATH = "hyperllama-init"  # Path to the HyperLlama model directory
-TOKENIZER_PATH = "meta-llama/Llama-2-7b-chat-hf"
+TOKENIZER_PATH = "llama-tokenizer"  # Path to the tokenizer directory
 CHECKPOINT = "checkpoints/hyperfold_genome.pth"
 PROMPT = "In a world where AI controls everything,"
 MAX_LENGTH = 50
