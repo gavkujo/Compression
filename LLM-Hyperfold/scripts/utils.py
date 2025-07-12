@@ -63,14 +63,26 @@ def quantize_model(model, bits=8):
             param.quant_scale = scale
             param.quant_zero = 0.0
 
+# scripts/utils.py (even better version)
+
 def save_compressed(model, path):
-    """Save model with quantization"""
-    state = {
-        'genome': model.model.genome.data.half(),  # FP16
-        'hypernet': {k: v.half() for k, v in model.state_dict().items()}
+    """Save compressed model with quantization"""
+    # Collect all compressible parameters
+    compressible = {
+        'genome': model.model.genome.data.half()
     }
-    torch.save(state, path, _use_new_zipfile_serialization=True)
-    print(f"Saved compressed model to {path} ({sum(t.numel() for t in state.values())/1e6:.2f}M params)")
+    for name, param in model.named_parameters():
+        if "hyper" in name:
+            compressible[name] = param.data.half()
+    
+    torch.save(compressible, path, _use_new_zipfile_serialization=True)
+    
+    # Calculate size
+    total_size = 0
+    for tensor in compressible.values():
+        total_size += tensor.numel()
+    
+    print(f"Saved compressed model to {path} ({total_size/1e6:.2f}M params)")
 
 def load_compressed(model, path, device):
     """Load quantized model"""
