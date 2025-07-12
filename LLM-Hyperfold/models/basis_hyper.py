@@ -49,7 +49,7 @@ class FactorizedBasisHyperLayer(nn.Module):
             W = W.squeeze(0)
             #bias = bias.squeeze(0)
             
-        return W, #bias
+        return W #bias
 
     def quantize(self, W, bits=8):
         """Improved quantization with min-max scaling"""
