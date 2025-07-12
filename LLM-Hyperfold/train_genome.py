@@ -114,7 +114,7 @@ def main():
             
             # Reconstruct all weights for this layer
             for weight_type, hypernet in hypernets.items():
-                W_true= orig_weights[layer_idx][weight_type]
+                W_true, _= orig_weights[layer_idx][weight_type]
                 W_true = W_true.to(DEVICE)
                 
                 # Generate weights - LLaMA doesn't use biases
