@@ -24,8 +24,8 @@ class HyperLlamaAttention(LlamaAttention):
         layer_idx: int,
         genome_proj: nn.Module,
         hyper_hidden: int,
-        M: int = 32,
-        rank: int = 64
+        M: int = 16, # 32 for 6B model
+        rank: int = 32 # 64 for 6B model
     ) -> None:
         super().__init__(config, layer_idx)
         E = config.hidden_size
@@ -69,7 +69,7 @@ class HyperLlamaAttention(LlamaAttention):
         # Project genome
         z_proj = self.genome_proj(genome_vec)
         cache_key = tuple(z_proj.flatten().tolist()) if use_cache else None
-        
+        '''
         # Check cache
         if use_cache and cache_key in self.cache:
             Wq, Wk, Wv, Wo, bq, bk, bv, bo = self.cache[cache_key]
@@ -81,6 +81,19 @@ class HyperLlamaAttention(LlamaAttention):
             
             if use_cache:
                 self.cache[cache_key] = (Wq, Wk, Wv, Wo, bq, bk, bv, bo)
+        '''
+
+        # Check cache (no bias since LLaMA doesn't use them)
+        if use_cache and cache_key in self.cache:
+            Wq, Wk, Wv, Wo = self.cache[cache_key]
+        else:
+            Wq = self.hyper_q(z_proj)
+            Wk = self.hyper_k(z_proj)
+            Wv = self.hyper_v(z_proj)
+            Wo = self.hyper_o(z_proj)
+            
+            if use_cache:
+                self.cache[cache_key] = (Wq, Wk, Wv, Wo)
         
         # Project inputs (without bias since LLaMA doesn't use them)
         q = F.linear(hidden_states, Wq)
@@ -114,8 +127,8 @@ class HyperLlamaMLP(LlamaMLP):
         config,
         genome_proj: nn.Module,
         hyper_hidden: int,
-        M: int = 32,
-        rank: int = 64
+        M: int = 16, # 32 for 6B model
+        rank: int = 32 # 64 for 6B model
     ):
         super().__init__(config)
         E = config.hidden_size

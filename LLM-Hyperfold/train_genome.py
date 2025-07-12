@@ -20,6 +20,18 @@ BATCH_SIZE = 8
 SAVE_PATH = "checkpoints/hyperfold_genome.pth"
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
+def reconstruction_loss(W_gen, W_true):
+    """Combined loss for better weight reconstruction"""
+    # Cosine similarity loss preserves direction
+    cos_loss = 1 - F.cosine_similarity(W_gen.flatten(), W_true.flatten(), dim=0)
+    
+    # Magnitude-aware MSE
+    norm_ratio = torch.norm(W_true) / (torch.norm(W_gen) + 1e-8)
+    mse_loss = F.mse_loss(W_gen * norm_ratio, W_true)
+    
+    return 0.7 * cos_loss + 0.3 * mse_loss
+
 def extract_layer_weights(layer):
     """Extract weights from a layer, handling missing biases"""
     weights = {}
@@ -74,6 +86,9 @@ def main():
             rank=RANK_START
         ).to(DEVICE)
     
+    total_hyper = sum(p.numel() for p in hypernets.parameters())
+    print(f"Standalone hypernetwork params: {total_hyper/1e6:.2f}M")
+    
     # Optimizer
     opt = optim.AdamW([
         {'params': genome, 'lr': LR},
@@ -112,7 +127,7 @@ def main():
                     W_gen = W_gen.float() / scale
                 
                 # Calculate loss - only weights, no biases
-                loss = F.mse_loss(W_gen, W_true)
+                loss = reconstruction_loss(W_gen, W_true)
                 total_loss += loss
         
         # Optimize
