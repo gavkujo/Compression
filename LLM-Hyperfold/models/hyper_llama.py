@@ -159,6 +159,7 @@ class HyperLlamaMLP(LlamaMLP):
         z_proj = self.genome_proj(genome_vec)
         cache_key = tuple(z_proj.flatten().tolist()) if use_cache else None
         
+        '''
         # Check cache
         if use_cache and cache_key in self.cache:
             W_gate, W_up, W_down, b_gate, b_up, b_down = self.cache[cache_key]
@@ -169,6 +170,18 @@ class HyperLlamaMLP(LlamaMLP):
             
             if use_cache:
                 self.cache[cache_key] = (W_gate, W_up, W_down, b_gate, b_up, b_down)
+        '''
+                
+        # Check cache
+        if use_cache and cache_key in self.cache:
+            W_gate, W_up, W_down = self.cache[cache_key]
+        else:
+            W_gate = self.hyper_gate(z_proj)
+            W_up = self.hyper_up(z_proj)
+            W_down = self.hyper_down(z_proj)
+            
+            if use_cache:
+                self.cache[cache_key] = (W_gate, W_up, W_down)
         
         # Forward pass (without bias since LLaMA doesn't use them)
         gate = F.linear(hidden_states, W_gate)
