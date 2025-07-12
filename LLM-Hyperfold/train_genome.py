@@ -122,8 +122,10 @@ def main():
                 
                 # Quantization-aware training in second half
                 if epoch > EPOCHS // 2:
-                    W_gen, scale = hypernet.quantize(W_gen, bits=8)
+                    W_gen, quant_params = hypernet.quantize(W_gen, bits=8)
+                    scale = quant_params[0]  # Extract scale from tuple
                     W_gen = W_gen.float() / scale
+        
                 
                 # Calculate loss - only weights, no biases
                 loss = reconstruction_loss(W_gen, W_true)
