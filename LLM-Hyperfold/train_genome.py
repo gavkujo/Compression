@@ -118,8 +118,7 @@ def main():
                 W_true = W_true.to(DEVICE)
                 
                 # Generate weights - LLaMA doesn't use biases
-                W_gen = hypernet(z)
-                W_gen = W_gen.squeeze(0)
+                W_gen = hypernet(z).squeeze(0)
                 
                 # Quantization-aware training in second half
                 if epoch > EPOCHS // 2:
