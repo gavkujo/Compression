@@ -114,11 +114,11 @@ def main():
             
             # Reconstruct all weights for this layer
             for weight_type, hypernet in hypernets.items():
-                W_true, b_true = orig_weights[layer_idx][weight_type]
+                W_true= orig_weights[layer_idx][weight_type]
                 W_true = W_true.to(DEVICE)
                 
                 # Generate weights - LLaMA doesn't use biases
-                W_gen, _ = hypernet(z)
+                W_gen = hypernet(z)
                 W_gen = W_gen.squeeze(0)
                 
                 # Quantization-aware training in second half
