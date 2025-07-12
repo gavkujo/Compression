@@ -37,10 +37,10 @@ def build_hyper_llama(
     intermediate_size=11008,
     num_hidden_layers=32,
     num_attention_heads=32,
-    genome_dim=64, # 96 for 6B model
-    hyper_hidden=128, # 256 for 6B model
-    M=16, # 32 for 6B model
-    rank=32 # 64 for 6B model
+    genome_dim=96, # 96 for 6B model
+    hyper_hidden=256, # 256 for 6B model
+    M=32, # 32 for 6B model
+    rank=64 # 64 for 6B model
 ):
     """Build a custom HyperLlama model"""
     log("Building LlamaConfig...")
