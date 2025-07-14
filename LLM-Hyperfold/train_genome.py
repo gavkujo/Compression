@@ -83,7 +83,8 @@ def main():
             out_dim=W.size(0),
             in_dim=W.size(1),
             M=M_BASIS,
-            rank=RANK_START
+            rank=RANK_START,
+            top_k=4  # Use top-k sparsity
         ).to(DEVICE)
     
     total_hyper = sum(p.numel() for p in hypernets.parameters())
@@ -121,15 +122,22 @@ def main():
                 W_gen = hypernet(z).squeeze(0)
                 
                 # Quantization-aware training in second half
+                ''' 
                 if epoch > EPOCHS // 2:
                     W_gen, quant_params = hypernet.quantize(W_gen, bits=8)
                     scale = quant_params[0]  # Extract scale from tuple
                     W_gen = W_gen.float() / scale
+                ''' 
+                
+                if epoch > EPOCHS // 2:
+                    W_gen = W_gen.float()  # REMOVE DIVISION BY SCALE
+                    W_gen, quant_params = hypernet.quantize(W_gen, bits=8)
         
                 
                 # Calculate loss - only weights, no biases
                 loss = reconstruction_loss(W_gen, W_true)
                 total_loss += loss
+                
         
         # Optimize
         opt.zero_grad()

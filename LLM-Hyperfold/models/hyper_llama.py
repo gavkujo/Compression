@@ -25,7 +25,8 @@ class HyperLlamaAttention(LlamaAttention):
         genome_proj: nn.Module,
         hyper_hidden: int,
         M: int = 16, # 32 for 6B model
-        rank: int = 32 # 64 for 6B model
+        rank: int = 32, # 64 for 6B model
+        genome_dim: int = 96  # Default genome dimension
     ) -> None:
         super().__init__(config, layer_idx)
         E = config.hidden_size
@@ -57,66 +58,56 @@ class HyperLlamaAttention(LlamaAttention):
         
         # Cache for unfolded weights
         self.cache = {}
+        self.head_positional = nn.Parameter(
+            torch.randn(config.num_attention_heads, genome_dim // 8)
+        )
 
-    def forward(
-        self,
-        hidden_states: torch.Tensor,
-        genome_vec: torch.Tensor,
-        attention_mask=None,
-        use_cache=False,
-        **kwargs
-    ):
-        # Project genome
-        z_proj = self.genome_proj(genome_vec)
-        cache_key = tuple(z_proj.flatten().tolist()) if use_cache else None
-        '''
-        # Check cache
-        if use_cache and cache_key in self.cache:
-            Wq, Wk, Wv, Wo, bq, bk, bv, bo = self.cache[cache_key]
-        else:
-            Wq, bq = self.hyper_q(z_proj)
-            Wk, bk = self.hyper_k(z_proj)
-            Wv, bv = self.hyper_v(z_proj)
-            Wo, bo = self.hyper_o(z_proj)
-            
-            if use_cache:
-                self.cache[cache_key] = (Wq, Wk, Wv, Wo, bq, bk, bv, bo)
-        '''
-
-        # Check cache (no bias since LLaMA doesn't use them)
-        if use_cache and cache_key in self.cache:
-            Wq, Wk, Wv, Wo = self.cache[cache_key]
-        else:
-            Wq = self.hyper_q(z_proj)
-            Wk = self.hyper_k(z_proj)
-            Wv = self.hyper_v(z_proj)
-            Wo = self.hyper_o(z_proj)
-            
-            if use_cache:
-                self.cache[cache_key] = (Wq, Wk, Wv, Wo)
-        
-        # Project inputs (without bias since LLaMA doesn't use them)
-        q = F.linear(hidden_states, Wq)
-        k = F.linear(hidden_states, Wk)
-        v = F.linear(hidden_states, Wv)
-        
-        # Reshape and compute attention
+    def forward(self, hidden_states, genome_vec, attention_mask=None, use_cache=False):
         B, T, _ = hidden_states.shape
-        q = q.view(B, T, self.num_heads, self.head_dim).transpose(1, 2)
-        k = k.view(B, T, self.num_heads, self.head_dim).transpose(1, 2)
-        v = v.view(B, T, self.num_heads, self.head_dim).transpose(1, 2)
+        head_outputs = []
         
-        # Attention computation
-        attn_weights = torch.matmul(q, k.transpose(2, 3)) / (self.head_dim ** 0.5)
-        if attention_mask is not None:
-            attn_weights = attn_weights + attention_mask
-        attn_weights = F.softmax(attn_weights, dim=-1)
-        attn_output = torch.matmul(attn_weights, v)
-        
-        # Merge heads and output projection
+        for head_idx in range(self.num_heads):
+            # Perturb genome for this head
+            head_genome = genome_vec + self.head_positional[head_idx]
+            
+            # Generate weights JUST for this head
+            head_dim = self.head_dim
+            start_idx = head_idx * head_dim
+            end_idx = (head_idx + 1) * head_dim
+            
+            Wq_head = self.hyper_q(head_genome)[start_idx:end_idx]
+            Wk_head = self.hyper_k(head_genome)[start_idx:end_idx]
+            Wv_head = self.hyper_v(head_genome)[start_idx:end_idx]
+            
+            # Process single head
+            q_head = F.linear(hidden_states, Wq_head)
+            k_head = F.linear(hidden_states, Wk_head)
+            v_head = F.linear(hidden_states, Wv_head)
+            
+            # Immediately discard weights
+            del Wq_head, Wk_head, Wv_head
+            
+            # Reshape for attention
+            q_head = q_head.view(B, T, 1, self.head_dim).transpose(1, 2)
+            k_head = k_head.view(B, T, 1, self.head_dim).transpose(1, 2)
+            v_head = v_head.view(B, T, 1, self.head_dim).transpose(1, 2)
+            
+            # Attention computation
+            attn_weights = torch.matmul(q_head, k_head.transpose(2, 3)) / (self.head_dim ** 0.5)
+            if attention_mask is not None:
+                attn_weights = attn_weights + attention_mask[:, :, :, :T]
+            attn_weights = F.softmax(attn_weights, dim=-1)
+            attn_output = torch.matmul(attn_weights, v_head)
+            head_outputs.append(attn_output)
+            
+        # Combine heads
+        attn_output = torch.cat(head_outputs, dim=1)
         attn_output = attn_output.transpose(1, 2).contiguous()
-        attn_output = attn_output.reshape(B, T, self.hidden_size)  # Use stored hidden_size
-        attn_output = F.linear(attn_output, Wo)  # No bias
+        attn_output = attn_output.reshape(B, T, self.hidden_size)
+        
+        # Output projection (still full matrix)
+        Wo = self.hyper_o(genome_vec)
+        attn_output = F.linear(attn_output, Wo)
         
         return (attn_output, None, None)
 

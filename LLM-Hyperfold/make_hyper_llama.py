@@ -40,7 +40,8 @@ def build_hyper_llama(
     genome_dim=96, # 96 for 6B model
     hyper_hidden=256, # 256 for 6B model
     M=32, # 32 for 6B model
-    rank=64 # 64 for 6B model
+    rank=64, # 64 for 6B model
+    top_k=4, # 8 for 6B model
 ):
     """Build a custom HyperLlama model"""
     log("Building LlamaConfig...")
@@ -60,7 +61,8 @@ def build_hyper_llama(
         genome_dim=genome_dim,
         hyper_hidden=hyper_hidden,
         M=M,
-        rank=rank
+        rank=rank,
+        top_k=top_k
     )
     
     log("Model instantiated ✅")

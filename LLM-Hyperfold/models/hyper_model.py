@@ -14,11 +14,13 @@ class HyperLlamaDecoderLayer(nn.Module):
         genome_proj: nn.Module,
         hyper_hidden: int,
         M: int,
-        rank: int
+        rank: int,
+        top_k: int = 4,
+        genome_dim: int = 96 
     ):
         super().__init__()
         self.self_attn = HyperLlamaAttention(
-            config, layer_idx, genome_proj, hyper_hidden, M, rank
+            config, layer_idx, genome_proj, hyper_hidden, M, rank, genome_dim  # PASS genome_dim
         )
         self.mlp = HyperLlamaMLP(config, genome_proj, hyper_hidden, M, rank)
         self.input_layernorm = LlamaRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
@@ -52,19 +54,22 @@ class HyperLlamaDecoderLayer(nn.Module):
 
 class HyperLlamaModel(LlamaPreTrainedModel):
     """Full LLaMA model with hyper-generated weights"""
-    def __init__(self, config, genome_dim=96, hyper_hidden=256, M=32, rank=64):
+    def __init__(self, config, genome_dim=96, hyper_hidden=256, M=32, rank=64, top_k=4):
         super().__init__(config)
         self.config = config
-        self.embed_tokens = nn.Embedding(config.vocab_size, config.hidden_size)
         
-        # Genome and projection
-        self.genome = nn.Parameter(torch.randn(config.num_hidden_layers, genome_dim))
+        # Multi-scale genome parameters
+        self.global_genome = nn.Parameter(torch.randn(genome_dim // 2))
+        self.layer_genome = nn.Parameter(torch.randn(config.num_hidden_layers, genome_dim // 4))
+        self.layer_position = nn.Embedding(config.num_hidden_layers, genome_dim // 4)
+        
+        # Projection remains same
         self.genome_proj = SharedGenomeProjection(genome_dim, hyper_hidden)
         
-        # Decoder layers
+        # Decoder layers with top_k
         self.layers = nn.ModuleList([
             HyperLlamaDecoderLayer(
-                config, i, self.genome_proj, hyper_hidden, M, rank
+                config, i, self.genome_proj, hyper_hidden, M, rank, top_k, genome_dim  # ADD genome_dim
             ) for i in range(config.num_hidden_layers)
         ])
         
@@ -73,18 +78,16 @@ class HyperLlamaModel(LlamaPreTrainedModel):
         # Initialize weights
         self.post_init()
 
-    def forward(
-        self,
-        input_ids: torch.LongTensor = None,
-        attention_mask: torch.Tensor = None,
-        use_cache: bool = False,
-    ):
-        # Embed inputs
+    def forward(self, input_ids, attention_mask=None, use_cache=False):
         hidden_states = self.embed_tokens(input_ids)
         
-        # Process through layers
         for layer_idx, layer in enumerate(self.layers):
-            genome_vec = self.genome[layer_idx]
+            # Assemble multi-scale genome
+            global_part = self.global_genome
+            layer_part = self.layer_genome[layer_idx]
+            pos_part = self.layer_position(torch.tensor(layer_idx, device=hidden_states.device))
+            genome_vec = torch.cat([global_part, layer_part, pos_part])
+            
             hidden_states = layer(
                 hidden_states,
                 genome_vec=genome_vec,
@@ -92,7 +95,6 @@ class HyperLlamaModel(LlamaPreTrainedModel):
                 use_cache=use_cache
             )
         
-        # Final normalization
         hidden_states = self.norm(hidden_states)
         return hidden_states
 
