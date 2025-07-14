@@ -50,3 +50,49 @@ Perplexity: 29300.54
 
 ---
 
+## RESULT LOG 2
+
+**DATE** : 14/7/2025
+**Commit Version** : v2.10
+
+**LOGS**
+
+[05:47:51] >> Starting HyperLLaMA model build
+[05:47:51] >> Building LlamaConfig...
+[05:47:51] >> Instantiating HyperLlamaForCausalLM...
+[05:47:54] >> Model instantiated ✅
+[05:47:54] >> Model build done in 3.17 seconds
+[05:47:54] >> Counting total parameters...
+Total parameters: 0.35B
+[05:47:54] >> Counting genome size...
+Genome size: 0.8K
+[05:47:54] >> Counting hypernetwork parameters...
+[05:47:54] >> Layer 1: 36.22M params
+[05:47:54] >> Layer 2: 36.22M params
+[05:47:54] >> Layer 3: 36.22M params
+[05:47:54] >> Layer 4: 36.22M params
+[05:47:54] >> Layer 5: 36.22M params
+[05:47:54] >> Layer 6: 36.22M params
+[05:47:54] >> Layer 7: 36.22M params
+[05:47:54] >> Layer 8: 36.22M params
+Hypernetwork parameters: 289.75M
+
+⚡ Compression Stats ⚡
+Total Params: 354.94M
+Hypernetwork Params: 289.36M
+Genome Size: 0.8K
+Compression Ratio: 1.2x
+Estimated RAM: 1157.4MB (FP32)
+Estimated RAM (8-bit): 144.7MB
+
+Loading compressed model...
+Model loaded in 3.71s
+Model RAM usage: 2261.73MB
+
+Generated text:
+In a world where AI controls everything, Joannainese ballads renov Algernonnders relegation mindsmarkedune toured Telegraph Crisisagara festival racially arrested fungus Manzanillo voting w Dandenong Stoke kilogram dissipatingthen nationalists Deb copulation Marion 1860awk Wallis ais Veerashaivauthors necessarilylide caut Tests
+
+Total time: 3.76s
+Time per token: 94.1ms
+RAM usage: Current=2535.85MB, Peak=2535.85MB
+Perplexity: 24545.39
