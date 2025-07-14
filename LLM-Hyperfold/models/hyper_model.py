@@ -100,9 +100,9 @@ class HyperLlamaModel(LlamaPreTrainedModel):
 
 class HyperLlamaForCausalLM(LlamaPreTrainedModel):
     """Causal LM with hyper-generated weights"""
-    def __init__(self, config, genome_dim=96, hyper_hidden=256, M=32, rank=64):
+    def __init__(self, config, genome_dim=96, hyper_hidden=256, M=32, rank=64, top_k=4):
         super().__init__(config)
-        self.model = HyperLlamaModel(config, genome_dim, hyper_hidden, M, rank)
+        self.model = HyperLlamaModel(config, genome_dim, hyper_hidden, M, rank, top_k=4)
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
         
         # Initialize weights
