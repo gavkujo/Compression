@@ -1,0 +1,2401 @@
+prompt,output,expert_type
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
+Write a function to add two numbers,"def add(a, b):
+    return a + b",code
+Write a function to multiply two numbers,"def multiply(a, b):
+    return a * b",code
+Write a function to check if number is even,"def is_even(n):
+    return n % 2 == 0",code
+Create an empty list,my_list = [],code
+Add element to list,my_list.append(element),code
