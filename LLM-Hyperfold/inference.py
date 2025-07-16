@@ -114,13 +114,14 @@ class UltraLightweightInference:
             self._apply_quantization()
         
         # Compile models for faster execution
+        '''
         try:
             self.hypernetwork = torch.jit.script(self.hypernetwork)
             print("✅ HyperNetwork compiled with TorchScript")
         except Exception as e:
             print(f"⚠️  TorchScript compilation failed: {e}")
             pass
-        
+        '''
         # Pre-allocate frequently used tensors
         self._preallocate_tensors()
         
