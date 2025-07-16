@@ -279,7 +279,7 @@ class MOEGenomeManager(nn.Module):
         
         # Add position-specific adjustments
         if position_id < 8:
-            position_emb = self.position_embeddings(torch.tensor(position_id))
+            position_emb = self.position_embeddings(torch.tensor(position_id, device=self.position_embeddings.weight.device))
             # Pad position embedding to match genome dimension
             position_full = torch.zeros_like(base_genome)
             position_full[:len(position_emb)] = position_emb
