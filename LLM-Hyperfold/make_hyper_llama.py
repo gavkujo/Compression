@@ -83,22 +83,14 @@ def build_hyper_llama(
     return model, config
 
 if __name__ == "__main__":
-    # Build a ~350M parameter model (proper size!)
+    # Build a ~6B parameter model
     log("Starting HyperLLaMA model build")
     start_time = time.time()
     model, config = build_hyper_llama(
-        vocab_size=32000,        # Full vocabulary for 350M model
-        hidden_size=1024,        # 1024 hidden size
-        intermediate_size=4096,  # 4x hidden size for MLP
-        num_hidden_layers=24,    # 24 layers for ~350M model
-        num_attention_heads=16,  # 16 attention heads
-        
-        # **HYPERNETWORK PARAMS** (for compression learning)
-        genome_dim=96,           # Full genome dimension
-        hyper_hidden=256,        # Full hypernetwork projection  
-        M=32,                    # Full basis matrices
-        rank=64,                 # Full rank factorization
-        top_k=4                  # Normal sparsity
+        hidden_size=1024, # 4096 for 6B model
+        intermediate_size=2048, # 11008 for 6B model
+        num_hidden_layers=8, # 32 layers for 6B model
+        num_attention_heads=8 # 32 heads for 6B model
     )
     elapsed = time.time() - start_time
     log(f"Model build done in {elapsed:.2f} seconds")
@@ -106,16 +98,6 @@ if __name__ == "__main__":
     log("Counting total parameters...")
     total_params = sum(p.numel() for p in model.parameters())
     print(f"Total parameters: {total_params/1e9:.2f}B")
-    
-    # **COMPARISON**: What would a standard LLaMA 350M have?
-    # Embedding: 32K vocab × 1024 hidden = 32.8M
-    # 24 layers × 14M each (attention + MLP + norms) = 336M  
-    # Total standard LLaMA ~350M: 32.8M + 336M = 369M
-    standard_llama_350m = 369_000_000
-    compression_ratio = standard_llama_350m / total_params
-    print(f"📊 Standard LLaMA-350M would have: {standard_llama_350m/1e6:.1f}M parameters")
-    print(f"🎯 Our HyperLLaMA has: {total_params/1e6:.1f}M parameters")  
-    print(f"🚀 Architecture compression: {compression_ratio:.1f}x smaller!")
     log("Counting genome size...")
     # Multi-scale genome stats
     g_global = model.model.global_genome.numel()
@@ -140,6 +122,8 @@ if __name__ == "__main__":
         
     
     print(f"Hypernetwork parameters: {hyper_params/1e6:.2f}M")
+
+    print_compression_stats(model)
 
     SAVE_DIR = "hyperllama-init"
     log(f"Saving model to {SAVE_DIR}...")
