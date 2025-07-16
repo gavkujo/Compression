@@ -321,7 +321,7 @@ class HyperNetworkTrainer:
                 loss = F.mse_loss(logits, target_logits)
                 total_loss += loss
             
-            # Update hidden states (avoid inplace operation)
+            # Update hidden states (avoid inplace operation) yeah addition
             hidden_states = hidden_states.clone()
             hidden_states[:, pos:pos+1, :] = output
             
