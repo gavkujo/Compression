@@ -65,7 +65,7 @@ class UltraLightweightInference:
             raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}")
         
         # Load checkpoint
-        checkpoint = torch.load(checkpoint_path, map_location='cpu')
+        checkpoint = torch.load(checkpoint_path, map_location='cpu', weights_only=False)
         config_dict = checkpoint['config']
         
         # Initialize components
