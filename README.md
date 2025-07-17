@@ -1,7 +1,7 @@
 # Universal HyperFold: Neural Network Compression via Hypernetworks
 
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org/)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.6-red.svg)](https://pytorch.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Abstract
@@ -40,8 +40,8 @@ The Universal HyperFold system consists of two primary components:
 - Enables rapid domain adaptation without retraining
 
 ```
-⚡ ULTRA-LIGHTWEIGHT INFERENCE DEMO
-✅ Generated weights shape: torch.Size([1024, 1024])
+>> ULTRA-LIGHTWEIGHT INFERENCE DEMO <<
+-> Generated weights shape: torch.Size([1024, 1024])
    Inference time: 1.9ms per token
    Peak RAM: 662MB
    Model size: 0.28MB
@@ -59,7 +59,7 @@ The Universal HyperFold system consists of two primary components:
 
 ### Hardware Requirements
 - **Minimum**: 4-core CPU, 1GB RAM, 50MB storage
-- **Recommended**: 8-core CPU, 2GB RAM, 100MB storage
+- **Recommended**: 8-core CPU, 2GB RAM, 100MB storage OR normal no GPU pc!
 - **Platform**: CPU-only execution (no GPU required)
 
 ## Installation
@@ -67,7 +67,7 @@ The Universal HyperFold system consists of two primary components:
 ```bash
 # Clone repository
 git clone https://github.com/gavkujo/Compression.git
-cd universal-hyperfold
+cd LLM-Hyperfold
 
 # Create environment
 python3.11 -m venv venv #Python 3.11 worked the best for me
@@ -132,13 +132,12 @@ engine.print_performance_report(metrics)
 ├── inference.py             # Inference engine
 ├── simple_dataset.py        # Dataset generation
 ├── test_pipeline.py         # End-to-end testing
-└── README.md
 ```
 
 ## Documentation
 
-- **[Architecture.md](Architecture.md)**: Detailed technical architecture and mathematical foundations
-- **[Innovations.md](Innovations.md)**: Comprehensive description of the 14 core innovations
+- **[Architecture.md](LLM-Hyperfold/Architecture.md)**: Detailed technical architecture and mathematical foundations
+- **[Innovations.md](LLM-Hyperfold/Innovations.md)**: Comprehensive description of the 14 core innovations
 
 ## Results
 
@@ -182,14 +181,7 @@ engine.print_performance_report(metrics)
 
 ## Citation
 
-```bibtex
-@article{universal_hyperfold_2025,
-  title={Universal HyperFold: Neural Network Compression via Hypernetworks},
-  author={[Author Names]},
-  journal={arXiv preprint arXiv:2025.00000},
-  year={2025}
-}
-```
+TBD
 
 ## License
 
@@ -197,26 +189,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on how to submit pull requests, report issues, and contribute to the project.
+TBD
 
 ## Acknowledgments
 
-This work builds upon research in neural network compression, hypernetworks, and mixture-of-experts architectures. We acknowledge the contributions of the broader research community in these areas.
+TBD
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🔗 Links
-
-- **Paper**: [arXiv:2025.00000](https://arxiv.org/abs/2025.00000)
-- **Demo**: [HuggingFace Space](#) (Coming soon)
-- **Blog Post**: [Technical Deep Dive](#) (Coming soon)
-- **Presentation**: [Conference Talk](#) (Coming soon)
-
-## 🆘 Support
-
-- **Issues**: [GitHub Issues](https://github.com/yourusername/universal-hyperfold/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/universal-hyperfold/discussions)
-- **Email**: [hyperfold@example.com](mailto:hyperfold@example.com)
 
 ---
 
