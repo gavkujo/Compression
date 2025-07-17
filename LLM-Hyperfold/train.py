@@ -101,49 +101,53 @@ class ExpertDataset(Dataset):
 
 class HyperNetworkTrainer:
     def compute_perplexity(self, data_loader) -> float:
-        """Compute perplexity on a given data loader"""
+        """Compute perplexity using actual model logits, with hypernetwork weights injected."""
         self.hypernetwork.eval()
         self.genome_manager.eval()
         total_loss = 0.0
         total_tokens = 0
+        from models.hyper_model import HyperLlamaForCausalLM
+        from transformers import LlamaConfig
+        model_config = MODEL_CONFIGS[self.config.target_model_size]
+        config = LlamaConfig(
+            vocab_size=model_config["vocab_size"],
+            hidden_size=model_config["hidden_size"],
+            intermediate_size=model_config["intermediate_size"],
+            num_hidden_layers=model_config["num_hidden_layers"],
+            num_attention_heads=model_config["num_attention_heads"],
+            max_position_embeddings=2048,
+            rms_norm_eps=1e-6,
+        )
+        transformer = HyperLlamaForCausalLM(config).to(self.device)
         with torch.no_grad():
             for batch in data_loader:
                 input_ids = batch['input_ids'].to(self.device)
                 labels = batch['labels'].to(self.device)
-                batch_size, seq_len = input_ids.shape
-                expert_types = [self.route_expert(batch['prompt'][i]) for i in range(len(batch['prompt']))]
-                genomes = torch.stack([
-                    self.genome_manager.get_expert_genome(exp_type,
-                        global_context=torch.randn(self.config.genome_dim//4, device=self.device),
-                        position_id=0
-                    ) for exp_type in expert_types
-                ])
-                model_config = MODEL_CONFIGS[self.config.target_model_size]
-                target_shape = (model_config['hidden_size'], model_config['hidden_size'])
-                hidden_states = torch.randn(batch_size, seq_len, model_config['hidden_size'], device=self.device)
-                batch_loss = 0.0
-                for pos in range(min(seq_len, 32)):
+                # --- Inject hypernetwork-generated weights into transformer ---
+                expert_type = batch.get('expert_type', 'general')
+                if isinstance(expert_type, list):
+                    expert_type = expert_type[0]
+                genome = self.genome_manager.get_expert_genome(expert_type,
+                    global_context=torch.randn(self.config.genome_dim//4, device=self.device),
+                    position_id=0)
+                layer_weights = []
+                for layer_idx in range(model_config["num_hidden_layers"]):
                     weights = self.hypernetwork.generate_weights(
-                        genomes,
-                        target_shape=target_shape,
+                        genome,
+                        target_shape=(model_config["hidden_size"], model_config["hidden_size"]),
                         target_model=self.config.target_model_size,
-                        token_position=pos
+                        token_position=layer_idx
                     )
-                    if weights.dim() == 3:
-                        output = torch.bmm(hidden_states[:, pos:pos+1, :], weights.transpose(-2, -1))
-                    else:
-                        output = torch.matmul(hidden_states[:, pos:pos+1, :], weights.T)
-                    if pos < seq_len - 1:
-                        logits = torch.matmul(output, hidden_states[:, pos+1:pos+2, :].transpose(-2, -1)).squeeze(-1)
-                        target_logits = torch.zeros_like(logits)
-                        loss = F.mse_loss(logits, target_logits, reduction='sum')
-                        batch_loss += loss.item()
-                total_loss += batch_loss
-                total_tokens += batch_size * min(seq_len, 32)
+                    layer_weights.append(weights)
+                transformer.set_layer_weights(layer_weights)
+                outputs = transformer(input_ids=input_ids, labels=labels)
+                loss = outputs.loss
+                total_loss += loss.item() * input_ids.size(0)
+                total_tokens += input_ids.size(0) * input_ids.size(1)
         if total_tokens == 0:
             return float('inf')
         avg_loss = total_loss / total_tokens
-        perplexity = np.exp(avg_loss)
+        perplexity = math.exp(avg_loss)
         return perplexity
     def route_expert(self, prompt: str) -> str:
         """Keyword-based expert router for prompt"""
@@ -638,7 +642,13 @@ def main():
     # Initialize trainer
     tokenizer_path = f"scripts/tokenizer_{config.target_model_size}/tokenizer.json"
     trainer = HyperNetworkTrainer(config, tokenizer_path=tokenizer_path)
-    
+
+    # --- Tokenizer vocab size consistency check ---
+    model_vocab_size = trainer.tokenizer.vocab_size
+    config_vocab_size = config.__dict__.get("vocab_size") or MODEL_CONFIGS[config.target_model_size]["vocab_size"]
+    if model_vocab_size != config_vocab_size:
+        raise ValueError(f"Tokenizer vocab size ({model_vocab_size}) does not match model config ({config_vocab_size})")
+
     # Train model
     try:
         final_metrics = trainer.train()

@@ -20,6 +20,91 @@ warnings.filterwarnings('ignore')
 from build import UniversalHyperNetwork, MOEGenomeManager, MODEL_CONFIGS
 
 class UltraLightweightInference:
+    def print_generation_metrics(self, start_time, output_ids, logits=None):
+        # Print RAM usage, time taken, and average token probability
+        ram = self._measure_ram()
+        elapsed = time.perf_counter() - start_time
+        avg_prob = None
+        if logits is not None:
+            # Calculate average probability of generated tokens
+            probs = torch.softmax(logits, dim=-1)
+            token_probs = [probs[i, token_id].item() for i, token_id in enumerate(output_ids)]
+            avg_prob = np.mean(token_probs)
+        print(f"RAM used: {ram:.1f}MB | Time taken: {elapsed:.2f}s" + (f" | Avg token prob: {avg_prob:.4f}" if avg_prob is not None else ""))
+    def _init_transformer(self):
+        # Import and initialize HyperLlamaForCausalLM
+        from models.hyper_model import HyperLlamaForCausalLM
+        from transformers import LlamaConfig
+        config_params = MODEL_CONFIGS[self.target_model_size]
+        config = LlamaConfig(
+            vocab_size=config_params["vocab_size"],
+            hidden_size=config_params["hidden_size"],
+            intermediate_size=config_params["intermediate_size"],
+            num_hidden_layers=config_params["num_hidden_layers"],
+            num_attention_heads=config_params["num_attention_heads"],
+            max_position_embeddings=2048,
+            rms_norm_eps=1e-6,
+        )
+        self.transformer = HyperLlamaForCausalLM(config)
+        # Load weights if available (optional)
+        # You may want to load from checkpoint here
+
+    def generate_text(self, prompt: str, expert_type: str = None, max_length: int = 64) -> str:
+        """Generate text response for a given prompt using the compressed model, printing metrics after each output."""
+        if not hasattr(self, "transformer"):
+            self._init_transformer()
+        input_ids = torch.tensor([self.tokenizer.encode(prompt, add_special_tokens=True)], device=self.device)
+        # --- Tokenizer vocab size consistency check ---
+        model_vocab_size = self.model_config["vocab_size"]
+        tokenizer_vocab_size = self.tokenizer.vocab_size
+        if tokenizer_vocab_size != model_vocab_size:
+            raise ValueError(f"Tokenizer vocab size ({tokenizer_vocab_size}) does not match model config ({model_vocab_size})")
+        # 2. Select expert genome
+        if expert_type is None:
+            expert_type = self.route_expert(prompt)
+        genome = self.genome_manager.get_expert_genome(expert_type,
+            global_context=torch.randn(self.genome_dim//4, device=self.device),
+            position_id=0)
+        # 3. Generate weights for each transformer layer
+        layer_weights = []
+        for layer_idx in range(self.model_config["num_hidden_layers"]):
+            weights = self.hypernetwork.generate_weights(
+                genome,
+                target_shape=(self.model_config["hidden_size"], self.model_config["hidden_size"]),
+                target_model=self.target_model_size,
+                token_position=layer_idx
+            )
+            layer_weights.append(weights)
+        # 4. Inject weights into transformer
+        self.transformer.set_layer_weights(layer_weights)
+        # 5. Generate output tokens
+        start_time = time.perf_counter()
+        with torch.no_grad():
+            output = self.transformer.generate(input_ids, max_length=max_length, return_dict_in_generate=True, output_scores=True)
+            output_ids = output.sequences[0].cpu().numpy().tolist()
+            logits = None
+            if hasattr(output, 'scores') and output.scores:
+                logits = torch.cat([score for score in output.scores], dim=0)
+            self.print_generation_metrics(start_time, output_ids, logits)
+        return self.tokenizer.decode(output_ids, skip_special_tokens=True)
+        # 2. Select expert genome
+        if expert_type is None:
+            expert_type = self.route_expert(prompt)
+        genome = self.genome_manager.get_expert_genome(expert_type,
+            global_context=torch.randn(self.genome_dim//4, device=self.device),
+            position_id=0)
+        # 3. Generate weights for each transformer layer
+        layer_weights = []
+        for layer_idx in range(self.model_config["num_hidden_layers"]):
+            weights = self.hypernetwork.generate_weights(
+                genome,
+                target_shape=(self.model_config["hidden_size"], self.model_config["hidden_size"]),
+                target_model=self.target_model_size,
+                token_position=layer_idx
+            )
+            layer_weights.append(weights)
+        # 4. Inject weights into transformer
+        self.transformer.set_layer_weights(layer_weights)
     """Ultra-optimized inference engine for CPU"""
     
     def __init__(self, 
@@ -483,71 +568,32 @@ def main():
     """Main inference demo"""
     print("⚡ ULTRA-LIGHTWEIGHT INFERENCE DEMO")
     print("=" * 45)
-    
     # Check for trained checkpoint
     checkpoint_path = "checkpoints/best_hypernetwork_1B.pt"
     if not os.path.exists(checkpoint_path):
-        checkpoint_path = "checkpoints/final_hypernetwork_1B.pt"
-        if not os.path.exists(checkpoint_path):
-            print("❌ No trained checkpoint found!")
-            print("Please run train.py first to train the model.")
-            return
-    
+        print(f"❌ Checkpoint not found: {checkpoint_path}")
+        return
     try:
         # Initialize inference engine
-        target_model_size = "1B"  # Change to "350M" if needed
-        tokenizer_path = f"scripts/tokenizer_{target_model_size}/tokenizer.json"
-        inference = UltraLightweightInference(
+        engine = UltraLightweightInference(
             checkpoint_path=checkpoint_path,
-            target_model_size=target_model_size,  # Change to "350M" if needed
+            target_model_size="1B",
             cpu_threads=4,
             enable_quantization=True,
-            tokenizer_path=tokenizer_path,
-            vocab_size=MODEL_CONFIGS[target_model_size]["vocab_size"]
+            tokenizer_path="scripts/tokenizer_1B/tokenizer.json",
+            vocab_size=32000
         )
-        # Quick single expert test
-        print(f"\n🧪 Quick test - generating weights for 'math' expert...")
-        weights = inference.get_expert_weights(
-            expert_type="math",
-            target_layer="attention",
-            token_position=0
-        )
-        print(f"✅ Generated weights shape: {weights.shape}")
-        print(f"   Inference time: {inference.inference_times[-1]:.1f}ms")
-        print(f"   RAM usage: {inference.memory_usage[-1]:.1f}MB")
-        # Full benchmark
-        print(f"\n🚀 Running full benchmark...")
-        metrics = inference.benchmark_performance(num_tokens=100, expert_type="math")
-        inference.print_performance_report(metrics)
-        # Test all experts
-        all_results = inference.test_all_experts(num_tokens=50)
-        # Save results
-        inference.save_results(all_results)
-        # Final summary
-        overall = all_results['overall']
-        print(f"\n🎉 FINAL SUMMARY:")
-        print(f"✅ Average inference: {overall['avg_token_time_ms']:.1f}ms/token")
-        print(f"✅ Max RAM usage: {overall['max_peak_ram_mb']:.1f}MB")
-        print(f"✅ Storage size: {overall['avg_storage_mb']:.2f}MB")
-        print(f"✅ All requirements: {'MET' if overall['all_experts_meet_requirements'] else 'NOT MET'}")
-        # --- CLI Chat Loop ---
-        print("\n🗨️  Universal HyperFold Chat Demo")
-        print("Type your prompt and press Enter (Ctrl+C to exit)")
-        os.makedirs("results", exist_ok=True)
-        with open("results/qualitative_results.txt", "a") as logf:
-            while True:
-                try:
-                    prompt = input("\nUser: ")
-                    if not prompt.strip():
-                        continue
-                    print("🔄 Generating response...")
-                    response = inference.generate_text(prompt, max_length=64)
-                    print(f"HyperFold: {response}")
-                    # Log prompt and response
-                    logf.write(f"PROMPT: {prompt}\nRESPONSE: {response}\n---\n")
-                except KeyboardInterrupt:
-                    print("\n👋 Exiting chat.")
-                    break
+        # Test with real prompts
+        prompts = [
+            "Write a function to add two numbers.",
+            "What is the capital of France?",
+            "Write a short story about a cat.",
+            "Solve: 12 + 7",
+        ]
+        for prompt in prompts:
+            print(f"\nPrompt: {prompt}")
+            output = engine.generate_text(prompt, max_length=64)
+            print(f"Output: {output}")
     except Exception as e:
         print(f"❌ Inference failed: {e}")
         import traceback

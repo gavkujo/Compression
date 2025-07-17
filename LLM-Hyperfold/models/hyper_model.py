@@ -70,6 +70,17 @@ class HyperLlamaDecoderLayer(nn.Module):
         self.mlp.enable_emergency_mode(enable)
 
 class HyperLlamaModel(LlamaPreTrainedModel):
+    def set_layer_weights(self, weights_list):
+        """Inject weights into transformer layers. weights_list should be a list of tensors, one per layer."""
+        if not isinstance(weights_list, list):
+            raise ValueError("weights_list must be a list of tensors, one per layer")
+        if len(weights_list) != len(self.layers):
+            raise ValueError(f"weights_list length ({len(weights_list)}) does not match number of layers ({len(self.layers)})")
+        for layer, weights in zip(self.layers, weights_list):
+            if hasattr(layer.self_attn, 'set_weights'):
+                layer.self_attn.set_weights(weights)
+            if hasattr(layer.mlp, 'set_weights'):
+                layer.mlp.set_weights(weights)
     """
     Full LLaMA model with ALL 14 innovations integrated
     """
