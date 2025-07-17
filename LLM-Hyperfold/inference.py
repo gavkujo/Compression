@@ -39,7 +39,11 @@ class UltraLightweightInference:
         self.memory_usage = []
         self.start_ram = self._measure_ram()
         # --- Tokenizer Integration ---
-        self.tokenizer = self._load_tokenizer(tokenizer_path, vocab_size)
+        from transformers import PreTrainedTokenizerFast
+        if tokenizer_path:
+            self.tokenizer = PreTrainedTokenizerFast(tokenizer_file=tokenizer_path)
+        else:
+            self.tokenizer = None
         # Load model components
         self._load_checkpoint(checkpoint_path)
         self._optimize_for_inference()

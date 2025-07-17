@@ -171,13 +171,14 @@ class HyperNetworkTrainer:
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         print(f"🔥 Using device: {self.device}")
         # --- Tokenizer Integration ---
-        from transformers import LlamaTokenizer
+        from transformers import PreTrainedTokenizerFast
         if tokenizer_path and os.path.exists(tokenizer_path):
             print(f"📦 Loading tokenizer from {tokenizer_path}")
-            self.tokenizer = LlamaTokenizer.from_pretrained(tokenizer_path)
+            self.tokenizer = PreTrainedTokenizerFast(tokenizer_file=tokenizer_path)
         else:
-            print(f"⚡ Creating new LlamaTokenizer (vocab_size={vocab_size})")
-            self.tokenizer = LlamaTokenizer(vocab_size=vocab_size)
+            print("No tokenizer found, exiting...")
+            raise FileNotFoundError("Tokenizer file not found. Please provide a valid tokenizer path.")
+        
         self.tokenizer.model_max_length = self.config.max_sequence_length
         # Initialize model components before optimizers
         model_config = MODEL_CONFIGS[self.config.target_model_size]

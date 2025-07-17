@@ -18,7 +18,10 @@ class SharedGenomeProjection(nn.Module):
     def forward(self, z: torch.Tensor, layer_idx: int = 0, token_position: int = 0) -> torch.Tensor:
         return self.proj(z)
     def reset_sequence(self):
-        pass
+        # Reset any internal state if needed (placeholder for future genome state)
+        if hasattr(self, 'sequence_cache'):
+            self.sequence_cache = {}
+        # Add more state resets as needed
 
 class HyperLlamaAttention(LlamaAttention):
     """
@@ -53,9 +56,22 @@ class HyperLlamaAttention(LlamaAttention):
             attn_output = attn_output[:, :, :E//2]
         return (attn_output, attn_probs, None)
     def reset_sequence(self):
-        pass
+        # Reset any caches or state variables used for streaming or temporal inheritance
+        if hasattr(self, 'attention_cache'):
+            self.attention_cache = {}
+        self.token_position = 0
+        if hasattr(self.hyper_qkv, 'reset_sequence'):
+            self.hyper_qkv.reset_sequence()
+        if hasattr(self.hyper_o, 'reset_sequence'):
+            self.hyper_o.reset_sequence()
+
     def enable_emergency_mode(self, enable: bool = True):
-        pass
+        # Toggle emergency mode for fast/low-memory inference
+        self.emergency_mode = enable
+        if hasattr(self.hyper_qkv, 'enable_emergency_mode'):
+            self.hyper_qkv.enable_emergency_mode(enable)
+        if hasattr(self.hyper_o, 'enable_emergency_mode'):
+            self.hyper_o.enable_emergency_mode(enable)
 
 class HyperLlamaMLP(nn.Module):
     """
@@ -109,9 +125,26 @@ class HyperLlamaMLP(nn.Module):
             output[:, start:end, :] = gate * down
         return output
     def reset_sequence(self):
-        pass
+        # Reset any caches or state variables used for streaming or temporal inheritance
+        if hasattr(self, 'mlp_cache'):
+            self.mlp_cache = {}
+        self.token_position = 0
+        if hasattr(self.hyper_gate, 'reset_sequence'):
+            self.hyper_gate.reset_sequence()
+        if hasattr(self.hyper_up, 'reset_sequence'):
+            self.hyper_up.reset_sequence()
+        if hasattr(self.hyper_down, 'reset_sequence'):
+            self.hyper_down.reset_sequence()
+
     def enable_emergency_mode(self, enable: bool = True):
-        pass
+        # Toggle emergency mode for fast/low-memory inference
+        self.emergency_mode = enable
+        if hasattr(self.hyper_gate, 'enable_emergency_mode'):
+            self.hyper_gate.enable_emergency_mode(enable)
+        if hasattr(self.hyper_up, 'enable_emergency_mode'):
+            self.hyper_up.enable_emergency_mode(enable)
+        if hasattr(self.hyper_down, 'enable_emergency_mode'):
+            self.hyper_down.enable_emergency_mode(enable)
 
 # Test with all 14 innovations
 if __name__ == "__main__":
