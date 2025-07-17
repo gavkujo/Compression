@@ -565,8 +565,8 @@ class UltraLightweightInference:
         print(f"💾 Results saved to {filepath}")
 
 def main():
-    """Main inference demo"""
-    print("⚡ ULTRA-LIGHTWEIGHT INFERENCE DEMO")
+    """Interactive CLI chat for Universal HyperFold inference"""
+    print("⚡ ULTRA-LIGHTWEIGHT INFERENCE DEMO (Interactive Chat Mode)")
     print("=" * 45)
     # Check for trained checkpoint
     checkpoint_path = "checkpoints/best_hypernetwork_1B.pt"
@@ -583,15 +583,12 @@ def main():
             tokenizer_path="scripts/tokenizer_1B/tokenizer.json",
             vocab_size=32000
         )
-        # Test with real prompts
-        prompts = [
-            "Write a function to add two numbers.",
-            "What is the capital of France?",
-            "Write a short story about a cat.",
-            "Solve: 12 + 7",
-        ]
-        for prompt in prompts:
-            print(f"\nPrompt: {prompt}")
+        print("\nType your prompt below. Type 'exit' or 'quit' to end chat.")
+        while True:
+            prompt = input("\nPrompt: ").strip()
+            if prompt.lower() in ["exit", "quit"]:
+                print("👋 Exiting chat.")
+                break
             output = engine.generate_text(prompt, max_length=64)
             print(f"Output: {output}")
     except Exception as e:
