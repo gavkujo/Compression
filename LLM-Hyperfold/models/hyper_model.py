@@ -12,6 +12,7 @@ class HyperLlamaDecoderLayer(nn.Module):
     """
     def __init__(self, config: LlamaConfig, layer_idx: int, genome_proj: nn.Module, hyper_hidden: int, M: int, rank: int, top_k: int = 4, genome_dim: int = 96):
         super().__init__()
+        self.layer_idx = layer_idx
         self.self_attn = HyperLlamaAttention(config, layer_idx, genome_proj, hyper_hidden, M, rank, top_k, genome_dim)
         self.mlp = HyperLlamaMLP(config, genome_proj, hyper_hidden, M, rank, genome_dim)
         self.input_layernorm = LlamaRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
