@@ -27,7 +27,7 @@ from scripts.utils import measure_ram, set_cpu_threads
 @dataclass
 class TrainingConfig:
     # Only field definitions here; instantiation happens in main()
-    target_model_size: str = "350M"
+    target_model_size: str = "1B"
     genome_dim: int = 96
     hyper_hidden: int = 256
     batch_size: int = 4
@@ -58,41 +58,39 @@ class TrainingConfig:
 class ExpertDataset(Dataset):
     """Dataset for expert-specific training"""
     
-    def __init__(self, csv_path: str, expert_type: str, max_length: int = 512):
+    def __init__(self, csv_path: str, expert_type: str, max_length: int = 512, tokenizer=None):
         self.df = pd.read_csv(csv_path)
         self.expert_type = expert_type
         self.max_length = max_length
-        
+        self.tokenizer = tokenizer
         # Filter for specific expert
         if expert_type != "all":
             self.df = self.df[self.df['expert_type'] == expert_type]
-        
         print(f"📊 Loaded {len(self.df)} samples for expert '{expert_type}'")
-    
+
     def __len__(self):
         return len(self.df)
-    
+
     def __getitem__(self, idx):
         row = self.df.iloc[idx]
         prompt = str(row['prompt'])
         output = str(row['output'])
         expert_type = row['expert_type']
-        
-        # Create input text (prompt + output for language modeling)
+        # Input text (prompt + output for LM)
         input_text = f"{prompt} {output}"
-        
-        # Simple tokenization (character-level for universal compatibility)
-        input_ids = [ord(c) % 1000 for c in input_text[:self.max_length]]
-        
+        # Subword tokenization
+        if self.tokenizer:
+            input_ids = self.tokenizer.encode(input_text, add_special_tokens=True, truncation=True, max_length=self.max_length)
+        else:
+            # Fallback: character-level
+            input_ids = [ord(c) % 1000 for c in input_text[:self.max_length]]
         # Pad or truncate
         if len(input_ids) < self.max_length:
             input_ids.extend([0] * (self.max_length - len(input_ids)))
         else:
             input_ids = input_ids[:self.max_length]
-        
-        # Labels for language modeling (shifted by 1)
+        # Labels for LM (shifted by 1)
         labels = input_ids[1:] + [0]
-        
         return {
             'input_ids': torch.tensor(input_ids, dtype=torch.long),
             'labels': torch.tensor(labels, dtype=torch.long),
@@ -102,13 +100,85 @@ class ExpertDataset(Dataset):
         }
 
 class HyperNetworkTrainer:
+    def compute_perplexity(self, data_loader) -> float:
+        """Compute perplexity on a given data loader"""
+        self.hypernetwork.eval()
+        self.genome_manager.eval()
+        total_loss = 0.0
+        total_tokens = 0
+        with torch.no_grad():
+            for batch in data_loader:
+                input_ids = batch['input_ids'].to(self.device)
+                labels = batch['labels'].to(self.device)
+                batch_size, seq_len = input_ids.shape
+                expert_types = [self.route_expert(batch['prompt'][i]) for i in range(len(batch['prompt']))]
+                genomes = torch.stack([
+                    self.genome_manager.get_expert_genome(exp_type,
+                        global_context=torch.randn(self.config.genome_dim//4, device=self.device),
+                        position_id=0
+                    ) for exp_type in expert_types
+                ])
+                model_config = MODEL_CONFIGS[self.config.target_model_size]
+                target_shape = (model_config['hidden_size'], model_config['hidden_size'])
+                hidden_states = torch.randn(batch_size, seq_len, model_config['hidden_size'], device=self.device)
+                batch_loss = 0.0
+                for pos in range(min(seq_len, 32)):
+                    weights = self.hypernetwork.generate_weights(
+                        genomes,
+                        target_shape=target_shape,
+                        target_model=self.config.target_model_size,
+                        token_position=pos
+                    )
+                    if weights.dim() == 3:
+                        output = torch.bmm(hidden_states[:, pos:pos+1, :], weights.transpose(-2, -1))
+                    else:
+                        output = torch.matmul(hidden_states[:, pos:pos+1, :], weights.T)
+                    if pos < seq_len - 1:
+                        logits = torch.matmul(output, hidden_states[:, pos+1:pos+2, :].transpose(-2, -1)).squeeze(-1)
+                        target_logits = torch.zeros_like(logits)
+                        loss = F.mse_loss(logits, target_logits, reduction='sum')
+                        batch_loss += loss.item()
+                total_loss += batch_loss
+                total_tokens += batch_size * min(seq_len, 32)
+        if total_tokens == 0:
+            return float('inf')
+        avg_loss = total_loss / total_tokens
+        perplexity = np.exp(avg_loss)
+        return perplexity
+    def route_expert(self, prompt: str) -> str:
+        """Keyword-based expert router for prompt"""
+        prompt_lower = prompt.lower()
+        # Simple keyword rules
+        math_keywords = ["sum", "add", "subtract", "multiply", "divide", "math", "equation", "number"]
+        code_keywords = ["def ", "function", "code", "python", "list", "append", "return", "variable"]
+        creative_keywords = ["story", "haiku", "poem", "creative", "imagine", "describe", "forest", "cat"]
+        general_keywords = ["capital", "ocean", "cpu", "invented", "general", "what", "who", "when"]
+        if any(k in prompt_lower for k in math_keywords):
+            return "math"
+        elif any(k in prompt_lower for k in code_keywords):
+            return "code"
+        elif any(k in prompt_lower for k in creative_keywords):
+            return "creative"
+        elif any(k in prompt_lower for k in general_keywords):
+            return "general"
+        else:
+            # Default fallback
+            return "general"
     """Universal HyperNetwork Trainer with MOE expert specialization"""
     
-    def __init__(self, config: TrainingConfig):
+    def __init__(self, config: TrainingConfig, tokenizer_path: str = None, vocab_size: int = 1000):
         self.config = config
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         print(f"🔥 Using device: {self.device}")
-
+        # --- Tokenizer Integration ---
+        from transformers import LlamaTokenizer
+        if tokenizer_path and os.path.exists(tokenizer_path):
+            print(f"📦 Loading tokenizer from {tokenizer_path}")
+            self.tokenizer = LlamaTokenizer.from_pretrained(tokenizer_path)
+        else:
+            print(f"⚡ Creating new LlamaTokenizer (vocab_size={vocab_size})")
+            self.tokenizer = LlamaTokenizer(vocab_size=vocab_size)
+        self.tokenizer.model_max_length = self.config.max_sequence_length
         # Initialize model components before optimizers
         model_config = MODEL_CONFIGS[self.config.target_model_size]
         self.hypernetwork = UniversalHyperNetwork(
@@ -124,16 +194,13 @@ class HyperNetworkTrainer:
             num_experts=self.config.num_experts,
             expert_types=self.config.expert_types
         )
-
         self._init_models()
         self._init_datasets()
         self._init_optimizers()
-
         # Training state
         self.step = 0
         self.epoch = 0
         self.best_loss = float('inf')
-
         # Performance tracking
         self.training_stats = {
             'losses': [],
@@ -192,23 +259,22 @@ class HyperNetworkTrainer:
     def _init_datasets(self):
         """Initialize datasets for all experts"""
         print("📚 Loading datasets...")
-        
         # Load combined dataset for mixed training
         self.combined_dataset = ExpertDataset(
             "datasets/combined_dataset.csv", 
             "all", 
-            self.config.max_sequence_length
+            self.config.max_sequence_length,
+            tokenizer=self.tokenizer
         )
-        
         # Load expert-specific datasets
         self.expert_datasets = {}
         for expert_type in self.config.expert_types:
             self.expert_datasets[expert_type] = ExpertDataset(
                 f"datasets/{expert_type}_dataset.csv",
                 expert_type,
-                self.config.max_sequence_length
+                self.config.max_sequence_length,
+                tokenizer=self.tokenizer
             )
-        
         # Create data loaders
         self.combined_loader = DataLoader(
             self.combined_dataset,
@@ -217,7 +283,6 @@ class HyperNetworkTrainer:
             num_workers=2,
             pin_memory=True if self.device.type == 'cuda' else False
         )
-        
         self.expert_loaders = {}
         for expert_type, dataset in self.expert_datasets.items():
             expert_batch_size = max(1, self.config.batch_size // self.config.num_experts)
@@ -228,7 +293,6 @@ class HyperNetworkTrainer:
                 num_workers=1,
                 pin_memory=True if self.device.type == 'cuda' else False
             )
-        
         print(f"✅ Loaded datasets: {len(self.combined_dataset)} total samples")
     
     def _init_optimizers(self):
@@ -258,81 +322,54 @@ class HyperNetworkTrainer:
         )
     
     def forward_pass(self, batch, expert_type: str = None) -> Tuple[torch.Tensor, Dict]:
-        """Forward pass through hypernetwork"""
+        """Forward pass through hypernetwork with expert routing"""
         input_ids = batch['input_ids'].to(self.device)
         labels = batch['labels'].to(self.device)
         batch_size, seq_len = input_ids.shape
-        
-        # Get expert genome
+        # Determine expert for each sample using router if not provided
         if expert_type is None:
-            # Use mixed expert selection for combined training
-            expert_types = [batch['expert_type'][i] for i in range(len(batch['expert_type']))]
+            expert_types = [self.route_expert(batch['prompt'][i]) for i in range(len(batch['prompt']))]
             genomes = torch.stack([
-                self.genome_manager.get_expert_genome(exp_type, 
+                self.genome_manager.get_expert_genome(exp_type,
                     global_context=torch.randn(self.config.genome_dim//4, device=self.device),
-                    position_id=0  # Simplified for training
+                    position_id=0
                 ) for exp_type in expert_types
             ])
         else:
-            # Use specific expert
             genomes = torch.stack([
                 self.genome_manager.get_expert_genome(expert_type,
                     global_context=torch.randn(self.config.genome_dim//4, device=self.device),
                     position_id=0
                 ) for _ in range(batch_size)
             ])
-        
-        # Get target model config
         model_config = MODEL_CONFIGS[self.config.target_model_size]
-        
-        # Generate weights using universal hypernetwork
-        # For training, we focus on a single weight matrix (simplified)
         target_shape = (model_config['hidden_size'], model_config['hidden_size'])
-        
         total_loss = 0.0
         metrics = {'per_token_time': [], 'memory_usage': []}
-        
-        # Process each token position with temporal inheritance
         hidden_states = torch.randn(batch_size, seq_len, model_config['hidden_size'], device=self.device)
-        
-        for pos in range(min(seq_len, 32)):  # Limit for training efficiency
+        for pos in range(min(seq_len, 32)):
             start_time = time.perf_counter()
-            
-            # Generate weights for this position
             weights = self.hypernetwork.generate_weights(
                 genomes,
                 target_shape=target_shape,
                 target_model=self.config.target_model_size,
                 token_position=pos
             )
-            
-            # Simple linear transformation (representing model layer)
             if weights.dim() == 3:
-                # Batch of weight matrices
                 output = torch.bmm(hidden_states[:, pos:pos+1, :], weights.transpose(-2, -1))
             else:
-                # Single weight matrix for all
                 output = torch.matmul(hidden_states[:, pos:pos+1, :], weights.T)
-            
-            # Language modeling loss (simplified)
             if pos < seq_len - 1:
                 logits = torch.matmul(output, hidden_states[:, pos+1:pos+2, :].transpose(-2, -1)).squeeze(-1)
                 target_logits = torch.zeros_like(logits)
                 loss = F.mse_loss(logits, target_logits)
                 total_loss += loss
-            
-            # Update hidden states (avoid inplace operation) yeah addition
             hidden_states = hidden_states.clone()
             hidden_states[:, pos:pos+1, :] = output
-            
-            # Track performance
-            token_time = (time.perf_counter() - start_time) * 1000  # ms
+            token_time = (time.perf_counter() - start_time) * 1000
             metrics['per_token_time'].append(token_time)
-        
-        # Memory usage
         current_ram, _ = measure_ram()
         metrics['memory_usage'].append(current_ram)
-        
         return total_loss / min(seq_len, 32), metrics
     
     def train_epoch(self):
@@ -500,34 +537,34 @@ class HyperNetworkTrainer:
         print(f"📂 Loaded checkpoint: {path}")
     
     def train(self):
-        """Main training loop"""
+        """Main training loop with perplexity tracking"""
         print("🚀 Starting Universal HyperNetwork Training...")
         print(f"Target Model: {self.config.target_model_size}")
         print(f"Epochs: {self.config.num_epochs}")
         print(f"Batch Size: {self.config.batch_size}")
-        
         for epoch in range(self.config.num_epochs):
             self.epoch = epoch
-            
             print(f"\n📅 Epoch {epoch + 1}/{self.config.num_epochs}")
-            
             # Train epoch
             avg_loss, expert_losses = self.train_epoch()
-            
             # Log losses
             self.training_stats['losses'].append(avg_loss)
             for expert, loss in expert_losses.items():
                 self.training_stats['expert_losses'][expert].append(loss)
-            
             print(f"📈 Epoch {epoch + 1} Results:")
             print(f"   Average Loss: {avg_loss:.4f}")
             for expert, loss in expert_losses.items():
                 print(f"   {expert.title()} Loss: {loss:.4f}")
-            
+            # Compute perplexity every epoch
+            print("🔎 Computing perplexity on validation set...")
+            val_loader = self.combined_loader  # For now, use combined loader as validation
+            perplexity = self.compute_perplexity(val_loader)
+            print(f"   Perplexity: {perplexity:.2f}")
+            self.training_stats.setdefault('perplexities', []).append(perplexity)
             # Evaluate every few epochs
             if (epoch + 1) % 2 == 0 or epoch == self.config.num_epochs - 1:
                 metrics = self.evaluate()
-                
+                metrics['perplexity'] = perplexity
                 # Save best model
                 if avg_loss < self.best_loss:
                     self.best_loss = avg_loss
@@ -535,24 +572,20 @@ class HyperNetworkTrainer:
                         f"checkpoints/best_hypernetwork_{self.config.target_model_size}.pt",
                         metrics
                     )
-            
             # Save regular checkpoint
             if (epoch + 1) % 5 == 0:
                 self.save_checkpoint(
                     f"checkpoints/hypernetwork_{self.config.target_model_size}_epoch_{epoch+1}.pt"
                 )
-        
         print("\n🎉 Training completed!")
-        
         # Final evaluation
         final_metrics = self.evaluate()
-        
+        final_metrics['perplexity'] = self.training_stats['perplexities'][-1] if 'perplexities' in self.training_stats else None
         # Save final model
         self.save_checkpoint(
             f"checkpoints/final_hypernetwork_{self.config.target_model_size}.pt",
             final_metrics
         )
-        
         return final_metrics
 
 def main():
@@ -579,7 +612,7 @@ def main():
     
     # Training configuration
     config = TrainingConfig(
-        target_model_size="350M",  # Start with smaller model
+        target_model_size="1B",  # Start with smaller model
         genome_dim=96,
         hyper_hidden=256,
         batch_size=batch_size,  # Small batch for memory efficiency
@@ -602,7 +635,8 @@ def main():
         print("🔧 Quick test config applied")
     
     # Initialize trainer
-    trainer = HyperNetworkTrainer(config)
+    tokenizer_path = f"scripts/tokenizer_{config.target_model_size}/tokenizer.json"
+    trainer = HyperNetworkTrainer(config, tokenizer_path=tokenizer_path)
     
     # Train model
     try:

@@ -26,25 +26,49 @@ class UltraLightweightInference:
                  checkpoint_path: str,
                  target_model_size: str = "350M",
                  cpu_threads: int = 4,
-                 enable_quantization: bool = True):
-        
+                 enable_quantization: bool = True,
+                 tokenizer_path: str = None,
+                 vocab_size: int = 1000):
         print("⚡ Initializing Ultra-Lightweight Inference Engine...")
-        
         self.target_model_size = target_model_size
         self.enable_quantization = enable_quantization
-        
-        # Set CPU optimization
         torch.set_num_threads(cpu_threads)
         torch.set_num_interop_threads(1)
         self.device = torch.device('cpu')
-        
-        # Performance tracking
         self.inference_times = []
         self.memory_usage = []
         self.start_ram = self._measure_ram()
-        
+        # --- Tokenizer Integration ---
+        self.tokenizer = self._load_tokenizer(tokenizer_path, vocab_size)
         # Load model components
         self._load_checkpoint(checkpoint_path)
+        self._optimize_for_inference()
+        print(f"✅ Inference engine ready!")
+        print(f"📊 Base RAM: {self.start_ram:.1f}MB")
+    
+    def route_expert(self, prompt: str) -> str:
+        """Keyword-based expert router for prompt (same as training)"""
+        prompt_lower = prompt.lower()
+        math_keywords = ["sum", "add", "subtract", "multiply", "divide", "math", "equation", "number"]
+        code_keywords = ["def ", "function", "code", "python", "list", "append", "return", "variable"]
+        creative_keywords = ["story", "haiku", "poem", "creative", "imagine", "describe", "forest", "cat"]
+        general_keywords = ["capital", "ocean", "cpu", "invented", "general", "what", "who", "when"]
+        if any(k in prompt_lower for k in math_keywords):
+            return "math"
+        elif any(k in prompt_lower for k in code_keywords):
+            return "code"
+        elif any(k in prompt_lower for k in creative_keywords):
+            return "creative"
+        else:
+            return "general"
+
+    def encode_prompt(self, prompt: str) -> List[int]:
+        """Encode prompt to input IDs using tokenizer"""
+        return self.tokenizer.encode(prompt, add_special_tokens=True)
+
+    def decode_output(self, output_ids: List[int]) -> str:
+        """Decode output IDs to text using tokenizer"""
+        return self.tokenizer.decode(output_ids, skip_special_tokens=True)
         
         # Apply optimizations
         self._optimize_for_inference()
@@ -457,9 +481,9 @@ def main():
     print("=" * 45)
     
     # Check for trained checkpoint
-    checkpoint_path = "checkpoints/best_hypernetwork_350M.pt"
+    checkpoint_path = "checkpoints/best_hypernetwork_1B.pt"
     if not os.path.exists(checkpoint_path):
-        checkpoint_path = "checkpoints/final_hypernetwork_350M.pt"
+        checkpoint_path = "checkpoints/final_hypernetwork_1B.pt"
         if not os.path.exists(checkpoint_path):
             print("❌ No trained checkpoint found!")
             print("Please run train.py first to train the model.")
@@ -467,13 +491,16 @@ def main():
     
     try:
         # Initialize inference engine
+        target_model_size = "1B"  # Change to "350M" if needed
+        tokenizer_path = f"scripts/tokenizer_{target_model_size}/tokenizer.json"
         inference = UltraLightweightInference(
             checkpoint_path=checkpoint_path,
-            target_model_size="350M",
+            target_model_size=target_model_size,  # Change to "350M" if needed
             cpu_threads=4,
-            enable_quantization=True
+            enable_quantization=True,
+            tokenizer_path=tokenizer_path,
+            vocab_size=MODEL_CONFIGS[target_model_size]["vocab_size"]
         )
-        
         # Quick single expert test
         print(f"\n🧪 Quick test - generating weights for 'math' expert...")
         weights = inference.get_expert_weights(
@@ -484,18 +511,14 @@ def main():
         print(f"✅ Generated weights shape: {weights.shape}")
         print(f"   Inference time: {inference.inference_times[-1]:.1f}ms")
         print(f"   RAM usage: {inference.memory_usage[-1]:.1f}MB")
-        
         # Full benchmark
         print(f"\n🚀 Running full benchmark...")
         metrics = inference.benchmark_performance(num_tokens=100, expert_type="math")
         inference.print_performance_report(metrics)
-        
         # Test all experts
         all_results = inference.test_all_experts(num_tokens=50)
-        
         # Save results
         inference.save_results(all_results)
-        
         # Final summary
         overall = all_results['overall']
         print(f"\n🎉 FINAL SUMMARY:")
@@ -503,7 +526,24 @@ def main():
         print(f"✅ Max RAM usage: {overall['max_peak_ram_mb']:.1f}MB")
         print(f"✅ Storage size: {overall['avg_storage_mb']:.2f}MB")
         print(f"✅ All requirements: {'MET' if overall['all_experts_meet_requirements'] else 'NOT MET'}")
-        
+        # --- CLI Chat Loop ---
+        print("\n🗨️  Universal HyperFold Chat Demo")
+        print("Type your prompt and press Enter (Ctrl+C to exit)")
+        os.makedirs("results", exist_ok=True)
+        with open("results/qualitative_results.txt", "a") as logf:
+            while True:
+                try:
+                    prompt = input("\nUser: ")
+                    if not prompt.strip():
+                        continue
+                    print("🔄 Generating response...")
+                    response = inference.generate_text(prompt, max_length=64)
+                    print(f"HyperFold: {response}")
+                    # Log prompt and response
+                    logf.write(f"PROMPT: {prompt}\nRESPONSE: {response}\n---\n")
+                except KeyboardInterrupt:
+                    print("\n👋 Exiting chat.")
+                    break
     except Exception as e:
         print(f"❌ Inference failed: {e}")
         import traceback

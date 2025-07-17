@@ -78,6 +78,35 @@ source venv/bin/activate  # Linux/Mac
 pip install -r "requirements.txt"
 ```
 
+## Qualitative Evaluation & Output Quality
+
+After training and running `inference.py`, you can interact with the model via CLI:
+
+```bash
+python LLM-Hyperfold/inference.py
+```
+
+### Test Scenarios
+- **Chat**: Ask general questions, have a conversation.
+- **Q&A**: Ask factual questions (math, science, history, etc.).
+- **Creative Writing**: Request stories, poems, or descriptions.
+- **Code Generation**: Ask for code snippets or programming help.
+
+### Output Quality & Documentation
+- Record sample prompts and model responses for each scenario.
+- Compare output to baseline models (e.g., GPT-2, LLaMA) for fluency, relevance, and accuracy.
+- Note strengths and weaknesses (e.g., compression tradeoffs, domain expertise).
+- Save results in `results/qualitative_results.txt` or similar for future reference.
+
+### Perplexity
+- Perplexity is tracked during training (see logs and results JSON).
+- Aim for perplexity <50 for intelligent, descriptive output.
+
+## Next Steps
+- Continue improving dataset quality and expert routing.
+- Experiment with more advanced routing or output decoding if needed.
+```
+
 ## Usage
 
 ### Quick Start

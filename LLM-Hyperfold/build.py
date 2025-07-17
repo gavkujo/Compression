@@ -13,11 +13,11 @@ from typing import Dict, Any, List
 
 # Model size configurations
 MODEL_CONFIGS = {
-    "350M": {"hidden_size": 1024, "intermediate_size": 4096, "num_hidden_layers": 24, "num_attention_heads": 16, "vocab_size": 32000},
+    "350M": {"hidden_size": 1024, "intermediate_size": 4096, "num_hidden_layers": 24, "num_attention_heads": 16, "vocab_size": 16000},
     "1B": {"hidden_size": 2048, "intermediate_size": 8192, "num_hidden_layers": 24, "num_attention_heads": 16, "vocab_size": 32000}, 
-    "3B": {"hidden_size": 3200, "intermediate_size": 12800, "num_hidden_layers": 26, "num_attention_heads": 32, "vocab_size": 32000},
-    "6B": {"hidden_size": 4096, "intermediate_size": 16384, "num_hidden_layers": 32, "num_attention_heads": 32, "vocab_size": 32000},
-    "14B": {"hidden_size": 5120, "intermediate_size": 20480, "num_hidden_layers": 40, "num_attention_heads": 40, "vocab_size": 32000}
+    "3B": {"hidden_size": 3200, "intermediate_size": 12800, "num_hidden_layers": 26, "num_attention_heads": 32, "vocab_size": 48000},
+    "6B": {"hidden_size": 4096, "intermediate_size": 16384, "num_hidden_layers": 32, "num_attention_heads": 32, "vocab_size": 64000},
+    "14B": {"hidden_size": 5120, "intermediate_size": 20480, "num_hidden_layers": 40, "num_attention_heads": 40, "vocab_size": 128000}
 }
 
 class UniversalHyperNetwork(nn.Module):
@@ -307,7 +307,7 @@ def build_universal_system(target_model_size: str = "350M"):
     
     # **1. Target model configuration**
     target_config = LlamaConfig(
-        vocab_size=32000,
+        vocab_size=config_params["vocab_size"],
         hidden_size=config_params["hidden"],
         intermediate_size=config_params["intermediate"], 
         num_hidden_layers=config_params["layers"],
@@ -361,7 +361,7 @@ def calculate_model_params(config_params: Dict[str, int]) -> int:
     layers = config_params["num_hidden_layers"]
     heads = config_params["num_attention_heads"]
     # Embedding + output
-    vocab_params = 32000 * hidden * 2  # embed + lm_head
+    vocab_params = config_params["vocab_size"] * hidden * 2  # embed + lm_head
     # Per layer: attention + MLP + norms
     attn_params = 4 * (hidden * hidden)  # Q, K, V, O projections
     mlp_params = 2 * (hidden * intermediate) + (intermediate * hidden)  # gate, up, down
