@@ -70,38 +70,6 @@ class UniversalHyperNetwork(nn.Module):
         # **State management**
         self.weight_memory = None
         self.current_token_pos = 0
-        self.max_hidden = max_hidden_size
-        
-        # **Core hypernetwork components**
-        self.genome_proj = nn.Sequential(
-            nn.Linear(self.genome_dim, self.hyper_hidden),
-            nn.GELU(),
-            nn.Linear(self.hyper_hidden, self.hyper_hidden)
-        )
-        
-        # **INNOVATION: Ultra-Aggressive Hierarchical Factorization**
-        self.rank = 64
-        self.coarse_rank = 8  # Ultra-small coarse structure
-        self.fine_rank = 56   # Most detail in fine structure
-        self.M = 16  # Basis matrices
-        self.top_k = 4
-        
-        # **Universal basis matrices (work for any target size)**
-        self.U_coarse = nn.Parameter(torch.randn(self.M, 64, self.coarse_rank) * 0.01)  # Fixed small size
-        self.V_coarse = nn.Parameter(torch.randn(self.M, self.coarse_rank, 64) * 0.01)   # Fixed small size
-        self.U_fine = nn.Parameter(torch.randn(self.M, 32, 32) * 0.005)  # Even smaller fine details
-        self.V_fine = nn.Parameter(torch.randn(self.M, 32, 32) * 0.005)
-        
-        # **Gating network**
-        self.gating = nn.Linear(self.hyper_hidden, self.M)
-        
-        # **INNOVATION: 4-Mode Smart Routing**
-        self.position_router = nn.Parameter(torch.randn(4) * 0.01)
-        self.delta_scale = 0.05
-        
-        # **State management**
-        self.weight_memory = None
-        self.current_token_pos = 0
         
     def generate_weights(self, 
                         genomes: torch.Tensor, 
@@ -305,10 +273,10 @@ def build_universal_system(target_model_size: str = "350M"):
     # **1. Target model configuration**
     target_config = LlamaConfig(
         vocab_size=config_params["vocab_size"],
-        hidden_size=config_params["hidden"],
-        intermediate_size=config_params["intermediate"], 
-        num_hidden_layers=config_params["layers"],
-        num_attention_heads=config_params["heads"],
+        hidden_size=config_params["hidden_size"],
+        intermediate_size=config_params["intermediate_size"], 
+        num_hidden_layers=config_params["num_hidden_layers"],
+        num_attention_heads=config_params["num_attention_heads"],
         max_position_embeddings=2048,
         rms_norm_eps=1e-6,
     )
@@ -317,7 +285,7 @@ def build_universal_system(target_model_size: str = "350M"):
     hypernetwork = UniversalHyperNetwork(max_hidden_size=5120)  # Supports up to 14B
     
     # **3. MOE genome manager**
-    genome_manager = MOEGenomeManager(genome_dim=32)
+    genome_manager = MOEGenomeManager(genome_dim=96)  # Match hypernetwork genome_dim
     
     # **4. Calculate compression stats**
     target_params = calculate_model_params(config_params)
@@ -352,7 +320,6 @@ def build_universal_system(target_model_size: str = "350M"):
 
 def calculate_model_params(config_params: Dict[str, int]) -> int:
     """Calculate parameters for standard LLaMA model"""
-    hidden = config_params["hidden"]
     hidden = config_params["hidden_size"]
     intermediate = config_params["intermediate_size"]
     layers = config_params["num_hidden_layers"]

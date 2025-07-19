@@ -28,7 +28,16 @@ class HyperLlamaAttention(LlamaAttention):
     Attention with ALL 14 innovations integrated
     """
     def __init__(self, config, layer_idx, genome_proj, hyper_hidden, M=32, rank=64, top_k=4, genome_dim=96):
-        super().__init__(config)  # Only pass config, not layer_idx
+        try:
+            # Try new transformers version (4.30+) with layer_idx
+            super().__init__(config, layer_idx=layer_idx)
+        except TypeError:
+            try:
+                # Try older version with positional layer_idx
+                super().__init__(config, layer_idx)
+            except TypeError:
+                # Fallback to config only
+                super().__init__(config)
         self.layer_idx = layer_idx
         self.genome_proj = genome_proj
         self.hyper_qkv = FactorizedBasisHyperLayer(hyper_hidden, config.hidden_size * 3, config.hidden_size, M, rank, top_k)

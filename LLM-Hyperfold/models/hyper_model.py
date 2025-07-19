@@ -97,7 +97,7 @@ class HyperLlamaModel(LlamaPreTrainedModel):
         # ✅ Innovation 9: Multi-Scale Genome with hierarchical structure
         self.global_genome = nn.Parameter(torch.randn(genome_dim // 2))  # 48 dims
         self.layer_genome = nn.Parameter(torch.randn(config.num_hidden_layers, genome_dim // 4))  # 24 dims
-        self.position_genome = nn.Parameter(torch.randn(512, genome_dim // 4))  # 24 dims
+        # Position genome now handled by layer_position embedding
         # Total: 48 + 24 + 24 = 96 dims
         
         # ✅ Innovation 10: Adaptive LoRA with compressed ranks
@@ -116,6 +116,9 @@ class HyperLlamaModel(LlamaPreTrainedModel):
         self.lora_B_layer = nn.Parameter(torch.zeros(config.num_hidden_layers, self.lora_rank, genome_dim // 4))
         nn.init.normal_(self.lora_A_layer, std=0.01)
         nn.init.normal_(self.lora_B_layer, std=0.01)
+        
+        # Position embedding layer for position genome lookup
+        self.layer_position = nn.Embedding(512, genome_dim // 4)  # Position embedding for genome
         
         # ✅ Innovation 9: Multi-Scale Genome Projection with compressed vocabulary
         self.genome_proj = SharedGenomeProjection(genome_dim, hyper_hidden, self.compressed_vocab_size)
@@ -163,7 +166,7 @@ class HyperLlamaModel(LlamaPreTrainedModel):
         
         # Position-dependent genome (with wraparound)
         pos_idx = min(token_position, 511)
-        pos_part = self.position_genome[pos_idx]
+        pos_part = self.layer_position(torch.tensor(pos_idx, device=self.global_genome.device))
 
         # ✅ Innovation 10: Adaptive LoRA application
         if self.use_lora:
