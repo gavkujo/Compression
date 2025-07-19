@@ -28,7 +28,7 @@ class HyperLlamaAttention(LlamaAttention):
     Attention with ALL 14 innovations integrated
     """
     def __init__(self, config, layer_idx, genome_proj, hyper_hidden, M=32, rank=64, top_k=4, genome_dim=96):
-        super().__init__(config)
+        super().__init__(config, layer_idx)
         self.layer_idx = layer_idx
         self.genome_proj = genome_proj
         self.hyper_qkv = FactorizedBasisHyperLayer(hyper_hidden, config.hidden_size * 3, config.hidden_size, M, rank, top_k)
