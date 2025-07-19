@@ -14,7 +14,7 @@ from typing import Dict, Any, List
 # Model size configurations
 MODEL_CONFIGS = {
     "350M": {"hidden_size": 1024, "intermediate_size": 4096, "num_hidden_layers": 24, "num_attention_heads": 16, "vocab_size": 16000},
-    "1B": {"hidden_size": 2048, "intermediate_size": 8192, "num_hidden_layers": 24, "num_attention_heads": 16, "vocab_size": 2145}, # 32000 for 1B
+    "1B": {"hidden_size": 2048, "intermediate_size": 8192, "num_hidden_layers": 24, "num_attention_heads": 16, "vocab_size": 32000}, # Fixed vocab size
     "3B": {"hidden_size": 3200, "intermediate_size": 12800, "num_hidden_layers": 26, "num_attention_heads": 32, "vocab_size": 48000},
     "6B": {"hidden_size": 4096, "intermediate_size": 16384, "num_hidden_layers": 32, "num_attention_heads": 32, "vocab_size": 64000},
     "14B": {"hidden_size": 5120, "intermediate_size": 20480, "num_hidden_layers": 40, "num_attention_heads": 40, "vocab_size": 128000}
@@ -33,9 +33,6 @@ class UniversalHyperNetwork(nn.Module):
         super().__init__()
         
         # Store configuration
-        self.genome_dim = genome_dim
-        self.hyper_hidden = hyper_hidden
-        super().__init__()
         self.genome_dim = genome_dim
         self.hyper_hidden = hyper_hidden
         self.target_configs = target_configs or MODEL_CONFIGS

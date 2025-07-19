@@ -93,7 +93,6 @@ class HyperLlamaModel(LlamaPreTrainedModel):
         # ✅ Innovation 8: Compressed Vocabulary
         self.compressed_vocab_size = min(config.vocab_size, 1000)
         self.embed_tokens = nn.Embedding(self.compressed_vocab_size, config.hidden_size)
-        self.vocab_compression = nn.Linear(config.vocab_size, self.compressed_vocab_size, bias=False)
         
         # ✅ Innovation 9: Multi-Scale Genome with hierarchical structure
         self.global_genome = nn.Parameter(torch.randn(genome_dim // 2))  # 48 dims
@@ -140,8 +139,12 @@ class HyperLlamaModel(LlamaPreTrainedModel):
         self.emergency_mode = False
         
         # ✅ Innovation 14: Memory Caching
-        self.genome_cache = {}
         self.cache_enabled = True
+        self.genome_cache = {}
+        
+        # ✅ Innovation 14: Memory Caching
+        #self.genome_cache = {}
+        #self.cache_enabled = True
         
         # Initialize weights
         self.post_init()
@@ -181,10 +184,8 @@ class HyperLlamaModel(LlamaPreTrainedModel):
         
         # ✅ Innovation 8: Compressed Vocabulary Processing
         if input_ids.max() >= self.compressed_vocab_size:
-            # Map full vocabulary to compressed space
-            vocab_weights = F.softmax(self.vocab_compression.weight, dim=0)
-            compressed_ids = torch.multinomial(vocab_weights[input_ids.flatten()], 1).view(batch_size, seq_len)
-            compressed_ids = torch.clamp(compressed_ids, 0, self.compressed_vocab_size - 1)
+            # Simple modulo mapping for vocabulary compression
+            compressed_ids = input_ids % self.compressed_vocab_size
         else:
             compressed_ids = input_ids
             
@@ -386,9 +387,17 @@ class HyperLlamaForCausalLM(LlamaPreTrainedModel):
             
             # ✅ Innovation 13: Fast sampling in emergency mode
             if enable_emergency_mode:
-                # Use top-2 sampling for speed
+                # Use top-2 sampling for speed with safety check
                 top_logits, top_indices = torch.topk(outputs.logits[:, -1, :], 2, dim=-1)
-                next_token = top_indices[:, torch.multinomial(F.softmax(top_logits, dim=-1), 1).squeeze(-1)]
+                probs = F.softmax(top_logits, dim=-1)
+                # Add small epsilon to avoid zero probabilities
+                probs = probs + 1e-8
+                probs = probs / probs.sum(dim=-1, keepdim=True)
+                try:
+                    next_token = top_indices[:, torch.multinomial(probs, 1).squeeze(-1)]
+                except RuntimeError:
+                    # Fallback to argmax if multinomial fails
+                    next_token = top_indices[:, 0:1]
             else:
                 next_token = outputs.logits[:, -1, :].argmax(-1, keepdim=True)
             

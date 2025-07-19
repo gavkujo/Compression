@@ -158,10 +158,18 @@ class FactorizedBasisHyperLayer(nn.Module):
         W = W + W_lora
         
         # Upsample to target size using repeat instead of interpolate
-        W = W.repeat(8, 8)
-        # Final output shape
-        W = W[:self.compressed_out_dim * 8, :self.compressed_in_dim * 8]
-        b = b.repeat_interleave(8)[:self.compressed_out_dim * 8]
+        target_out_dim = self.compressed_out_dim * 8
+        target_in_dim = self.compressed_in_dim * 8
+        
+        # Calculate repeat factors to reach target dimensions
+        out_repeat = max(1, target_out_dim // W.shape[0])
+        in_repeat = max(1, target_in_dim // W.shape[1])
+        
+        W = W.repeat(out_repeat, in_repeat)
+        
+        # Trim to exact target size
+        W = W[:target_out_dim, :target_in_dim]
+        b = b.repeat_interleave(8)[:target_out_dim]
         # Cache result
         if self.cache_enabled:
             self.weight_cache[cache_key] = (W, b)
@@ -200,6 +208,16 @@ class FactorizedBasisHyperLayer(nn.Module):
         self.lora_rank = max(1, new_rank // 2)
         self.lora_A = nn.Parameter(torch.randn(self.M, self.compressed_out_dim, self.lora_rank) * 0.01)
         self.lora_B = nn.Parameter(torch.randn(self.M, self.lora_rank, self.compressed_in_dim) * 0.01)
+
+    def reset_sequence(self):
+        """Reset sequence state for temporal inheritance"""
+        self.sequence_state = None
+        self.position_counter = 0
+        self.temporal_cache.clear()
+        
+    def enable_emergency_mode(self, enable: bool = True):
+        """Enable/disable emergency fast mode"""
+        self.emergency_mode = enable
 
 if __name__ == "__main__":
     B, G, H, O, I, M = 2, 256, 128, 128, 128, 32
