@@ -20,7 +20,7 @@ DATA_FILES = [
 # Model configs for vocab sizes - sync with build.py
 MODEL_CONFIGS = {
     "350M": {"vocab_size": 16000},
-    "1B": {"vocab_size": 32000}, # Fixed to match build.py
+    "1B": {"vocab_size": 2145}, # Match existing tokenizer
     "3B": {"vocab_size": 48000},
     "6B": {"vocab_size": 64000},
     "14B": {"vocab_size": 128000}
