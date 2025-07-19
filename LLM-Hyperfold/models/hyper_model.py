@@ -360,8 +360,15 @@ class HyperLlamaForCausalLM(LlamaPreTrainedModel):
         # Calculate loss if labels provided
         loss = None
         if labels is not None:
-            shift_logits = logits[..., :-1, :].contiguous()
-            shift_labels = labels[..., 1:].contiguous()
+            # ✅ Innovation 8: Compress labels to match compressed vocabulary
+            if labels.max() >= self.compressed_vocab_size:
+                compressed_labels = labels % self.compressed_vocab_size
+            else:
+                compressed_labels = labels
+                
+            # Use compressed logits directly for loss (no vocab expansion needed for training)
+            shift_logits = compressed_logits[..., :-1, :].contiguous()
+            shift_labels = compressed_labels[..., 1:].contiguous()
             
             loss_fct = nn.CrossEntropyLoss()
             loss = loss_fct(
