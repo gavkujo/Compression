@@ -96,9 +96,10 @@ class HyperLlamaModel(LlamaPreTrainedModel):
         self.vocab_compression = nn.Linear(config.vocab_size, self.compressed_vocab_size, bias=False)
         
         # ✅ Innovation 9: Multi-Scale Genome with hierarchical structure
-        self.global_genome = nn.Parameter(torch.randn(genome_dim // 4))  # Global context
-        self.layer_genome = nn.Parameter(torch.randn(config.num_hidden_layers, genome_dim // 8))  # Per-layer
-        self.position_genome = nn.Parameter(torch.randn(512, genome_dim // 8))  # Position-dependent
+        self.global_genome = nn.Parameter(torch.randn(genome_dim // 2))  # 48 dims
+        self.layer_genome = nn.Parameter(torch.randn(config.num_hidden_layers, genome_dim // 4))  # 24 dims
+        self.position_genome = nn.Parameter(torch.randn(512, genome_dim // 4))  # 24 dims
+        # Total: 48 + 24 + 24 = 96 dims
         
         # ✅ Innovation 10: Adaptive LoRA with compressed ranks
         self.lora_rank = lora_rank // 2  # Ultra-compressed LoRA
@@ -106,14 +107,14 @@ class HyperLlamaModel(LlamaPreTrainedModel):
         self.use_lora = use_lora
         
         # Global genome LoRA (ultra-compressed)
-        self.lora_A_global = nn.Parameter(torch.zeros(genome_dim // 4, self.lora_rank))
-        self.lora_B_global = nn.Parameter(torch.zeros(self.lora_rank, genome_dim // 4))
+        self.lora_A_global = nn.Parameter(torch.zeros(genome_dim // 2, self.lora_rank))  # 48 dims
+        self.lora_B_global = nn.Parameter(torch.zeros(self.lora_rank, genome_dim // 2))
         nn.init.normal_(self.lora_A_global, std=0.01)
         nn.init.normal_(self.lora_B_global, std=0.01)
         
         # Layer genome LoRA (ultra-compressed)
-        self.lora_A_layer = nn.Parameter(torch.zeros(config.num_hidden_layers, genome_dim // 8, self.lora_rank))
-        self.lora_B_layer = nn.Parameter(torch.zeros(config.num_hidden_layers, self.lora_rank, genome_dim // 8))
+        self.lora_A_layer = nn.Parameter(torch.zeros(config.num_hidden_layers, genome_dim // 4, self.lora_rank))  # 24 dims
+        self.lora_B_layer = nn.Parameter(torch.zeros(config.num_hidden_layers, self.lora_rank, genome_dim // 4))
         nn.init.normal_(self.lora_A_layer, std=0.01)
         nn.init.normal_(self.lora_B_layer, std=0.01)
         
