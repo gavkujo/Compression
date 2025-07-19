@@ -32,52 +32,42 @@ class UltraLightweightInference:
             avg_prob = np.mean(token_probs)
         print(f"RAM used: {ram:.1f}MB | Time taken: {elapsed:.2f}s" + (f" | Avg token prob: {avg_prob:.4f}" if avg_prob is not None else ""))
     def _init_transformer(self):
-        # Import and initialize HyperLlamaForCausalLM
+        # Import and initialize our compressed HyperLlamaForCausalLM
         from models.hyper_model import HyperLlamaForCausalLM
         from transformers import LlamaConfig
-        config_params = MODEL_CONFIGS[self.target_model_size]
-        config = LlamaConfig(
-            vocab_size=config_params["vocab_size"],
-            hidden_size=config_params["hidden_size"],
-            intermediate_size=config_params["intermediate_size"],
-            num_hidden_layers=config_params["num_hidden_layers"],
-            num_attention_heads=config_params["num_attention_heads"],
+        
+        # Use compressed config for our hypernetwork model
+        compressed_config = LlamaConfig(
+            vocab_size=1000,  # Use compressed vocabulary
+            hidden_size=512,  # Use compressed hidden size  
+            intermediate_size=1024,  # Use compressed intermediate
+            num_hidden_layers=8,  # Use fewer layers
+            num_attention_heads=8,  # Use fewer heads
             max_position_embeddings=2048,
             rms_norm_eps=1e-6,
         )
-        self.transformer = HyperLlamaForCausalLM(config)
+        
+        # Create our compressed HyperLlama model (this is the actual compressed architecture)
+        self.transformer = HyperLlamaForCausalLM(
+            compressed_config,
+            genome_dim=self.genome_dim,
+            hyper_hidden=256,
+            M=16,  # Compressed expert count
+            rank=32,  # Compressed rank
+            top_k=4
+        )
         # Load weights if available (optional)
         # You may want to load from checkpoint here
 
     def generate_text(self, prompt: str, expert_type: str = None, max_length: int = 64) -> str:
-        """Generate text response for a given prompt using the compressed model, printing metrics after each output."""
+        """Generate text using the clean flow: genome → hypernetwork → weights → llama scaffold → output"""
         if not hasattr(self, "transformer"):
             self._init_transformer()
+        
         input_ids = torch.tensor([self.tokenizer.encode(prompt, add_special_tokens=True)], device=self.device)
-        # --- Tokenizer vocab size consistency check ---
-        model_vocab_size = self.model_config["vocab_size"]
-        tokenizer_vocab_size = self.tokenizer.vocab_size
-        if tokenizer_vocab_size != model_vocab_size:
-            raise ValueError(f"Tokenizer vocab size ({tokenizer_vocab_size}) does not match model config ({model_vocab_size})")
-        # 2. Select expert genome
-        if expert_type is None:
-            expert_type = self.route_expert(prompt)
-        genome = self.genome_manager.get_expert_genome(expert_type,
-            global_context=torch.randn(self.genome_dim//4, device=self.device),
-            position_id=0)
-        # 3. Generate weights for each transformer layer
-        layer_weights = []
-        for layer_idx in range(self.model_config["num_hidden_layers"]):
-            weights = self.hypernetwork.generate_weights(
-                genome,
-                target_shape=(self.model_config["hidden_size"], self.model_config["hidden_size"]),
-                target_model=self.target_model_size,
-                token_position=layer_idx
-            )
-            layer_weights.append(weights)
-        # 4. Inject weights into transformer
-        self.transformer.set_layer_weights(layer_weights)
-        # 5. Generate output tokens
+        
+        # Clean flow: HyperLlamaForCausalLM handles the entire pipeline internally
+        # genome → hypernetwork → weights → llama scaffold → output
         start_time = time.perf_counter()
         with torch.no_grad():
             output = self.transformer.generate(input_ids, max_length=max_length, return_dict_in_generate=True, output_scores=True)
@@ -87,28 +77,11 @@ class UltraLightweightInference:
                 logits = torch.cat([score for score in output.scores], dim=0)
             self.print_generation_metrics(start_time, output_ids, logits)
         return self.tokenizer.decode(output_ids, skip_special_tokens=True)
-        # 2. Select expert genome
-        if expert_type is None:
-            expert_type = self.route_expert(prompt)
-        genome = self.genome_manager.get_expert_genome(expert_type,
-            global_context=torch.randn(self.genome_dim//4, device=self.device),
-            position_id=0)
-        # 3. Generate weights for each transformer layer
-        layer_weights = []
-        for layer_idx in range(self.model_config["num_hidden_layers"]):
-            weights = self.hypernetwork.generate_weights(
-                genome,
-                target_shape=(self.model_config["hidden_size"], self.model_config["hidden_size"]),
-                target_model=self.target_model_size,
-                token_position=layer_idx
-            )
-            layer_weights.append(weights)
-        # 4. Inject weights into transformer
-        self.transformer.set_layer_weights(layer_weights)
+    
     """Ultra-optimized inference engine for CPU"""
     
     def __init__(self, 
-                 checkpoint_path: str,
+                 checkpoint_path: str = None,
                  target_model_size: str = "350M",
                  cpu_threads: int = 4,
                  enable_quantization: bool = True,
@@ -123,15 +96,22 @@ class UltraLightweightInference:
         self.inference_times = []
         self.memory_usage = []
         self.start_ram = self._measure_ram()
+        self.genome_dim = 96  # Default genome dimension
+        
         # --- Tokenizer Integration ---
         from transformers import PreTrainedTokenizerFast
         if tokenizer_path:
             self.tokenizer = PreTrainedTokenizerFast(tokenizer_file=tokenizer_path)
         else:
             self.tokenizer = None
-        # Load model components
-        self._load_checkpoint(checkpoint_path)
-        self._optimize_for_inference()
+            
+        # Initialize the self-contained HyperLlamaForCausalLM (no separate components needed)
+        # The model handles: genome → hypernetwork → weights → llama scaffold → output
+        if checkpoint_path and os.path.exists(checkpoint_path):
+            self._load_checkpoint(checkpoint_path)
+        else:
+            print("⚠️  No checkpoint provided, using default model")
+            
         print(f"✅ Inference engine ready!")
         print(f"📊 Base RAM: {self.start_ram:.1f}MB")
     
@@ -171,72 +151,47 @@ class UltraLightweightInference:
         return process.memory_info().rss / (1024 ** 2)
     
     def _load_checkpoint(self, checkpoint_path: str):
-        """Load trained model checkpoint"""
+        """Load trained HyperLlamaForCausalLM checkpoint"""
         print(f"📂 Loading checkpoint: {checkpoint_path}")
         
         if not os.path.exists(checkpoint_path):
             raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}")
         
-        # Load checkpoint
+        # Load checkpoint for HyperLlamaForCausalLM
         checkpoint = torch.load(checkpoint_path, map_location='cpu', weights_only=False)
-        config_dict = checkpoint['config']
         
-        # Initialize components
-        self.genome_dim = config_dict['genome_dim']
-        self.hyper_hidden = config_dict['hyper_hidden']
-        self.num_experts = config_dict['num_experts']
-        self.expert_types = config_dict['expert_types']
+        # Initialize the self-contained HyperLlamaForCausalLM
+        # This model handles: genome → hypernetwork → weights → llama scaffold → output
+        if not hasattr(self, "transformer"):
+            self._init_transformer()
+            
+        # Load the trained weights into our HyperLlamaForCausalLM
+        if 'model_state_dict' in checkpoint:
+            self.transformer.load_state_dict(checkpoint['model_state_dict'])
+            print("✅ HyperLlamaForCausalLM weights loaded successfully")
+        else:
+            print("⚠️  No model weights found in checkpoint, using initialized weights")
         
-        # Create models
-        self.hypernetwork = UniversalHyperNetwork(
-            genome_dim=self.genome_dim,
-            hyper_hidden=self.hyper_hidden,
-            target_configs=MODEL_CONFIGS,
-            enable_streaming=True,
-            enable_temporal=True
-        )
-        
-        self.genome_manager = MOEGenomeManager(
-            genome_dim=self.genome_dim,
-            num_experts=self.num_experts,
-            expert_types=self.expert_types
-        )
-        
-        # Load trained weights
-        self.hypernetwork.load_state_dict(checkpoint['hypernetwork_state'])
-        self.genome_manager.load_state_dict(checkpoint['genome_manager_state'])
+        # Apply optimizations
+        self._optimize_for_inference()
         
         print("✅ Checkpoint loaded successfully")
     
     def _optimize_for_inference(self):
-        """Apply CPU and memory optimizations"""
+        """Apply CPU and memory optimizations to HyperLlamaForCausalLM"""
         print("🔧 Applying inference optimizations...")
         
-        # Set to evaluation mode
-        self.hypernetwork.eval()
-        self.genome_manager.eval()
-        
-        # Disable gradients globally
-        for param in self.hypernetwork.parameters():
-            param.requires_grad = False
-        for param in self.genome_manager.parameters():
-            param.requires_grad = False
-        
-        # Apply quantization if enabled
-        if self.enable_quantization:
-            self._apply_quantization()
-        
-        # Compile models for faster execution
-        '''
-        try:
-            self.hypernetwork = torch.jit.script(self.hypernetwork)
-            print("✅ HyperNetwork compiled with TorchScript")
-        except Exception as e:
-            print(f"⚠️  TorchScript compilation failed: {e}")
-            pass
-        '''
-        # Pre-allocate frequently used tensors
-        self._preallocate_tensors()
+        if hasattr(self, 'transformer'):
+            # Set to evaluation mode
+            self.transformer.eval()
+            
+            # Disable gradients globally
+            for param in self.transformer.parameters():
+                param.requires_grad = False
+                
+            # Apply quantization if enabled
+            if self.enable_quantization:
+                self._apply_quantization()
         
         print("✅ Optimizations applied")
     
@@ -268,15 +223,11 @@ class UltraLightweightInference:
             # Dequantize for use
             return (quantized - zero_point) * scale
         
-        # Quantize hypernetwork weights
-        for name, param in self.hypernetwork.named_parameters():
-            if param.dim() > 1:  # Only quantize matrices
-                param.data = quantize_tensor(param.data)
-        
-        # Quantize genome weights (less aggressive to preserve precision)
-        for name, param in self.genome_manager.named_parameters():
-            if param.dim() > 1:
-                param.data = quantize_tensor(param.data, bits=16)  # Higher precision for genomes
+        # Quantize HyperLlamaForCausalLM weights
+        if hasattr(self, 'transformer'):
+            for name, param in self.transformer.named_parameters():
+                if param.dim() > 1:  # Only quantize matrices
+                    param.data = quantize_tensor(param.data)
         
         print("✅ Quantization applied")
     

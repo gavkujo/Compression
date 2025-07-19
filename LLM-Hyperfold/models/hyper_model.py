@@ -195,7 +195,7 @@ class HyperLlamaModel(LlamaPreTrainedModel):
         hidden_states = self.embed_tokens(compressed_ids)
         
         # ✅ Innovation 5: Streaming Chunk Processing for long sequences
-        if seq_len > 64:
+        if seq_len > 32:  # Reduced threshold for memory efficiency
             return self._streaming_forward(hidden_states, attention_mask, use_cache, token_position)
         
         # Process through layers with all innovations
@@ -237,10 +237,10 @@ class HyperLlamaModel(LlamaPreTrainedModel):
     
     def _streaming_forward(self, hidden_states, attention_mask, use_cache, token_position):
         """
-        ✅ Innovation 5: Streaming Chunk Processing
+        ✅ Innovation 5: Streaming Chunk Processing with aggressive memory management
         """
         batch_size, seq_len, hidden_size = hidden_states.shape
-        chunk_size = 64
+        chunk_size = 16  # Reduced for memory efficiency
         output = torch.zeros_like(hidden_states)
         
         for start_idx in range(0, seq_len, chunk_size):
@@ -250,18 +250,27 @@ class HyperLlamaModel(LlamaPreTrainedModel):
             chunk_mask = attention_mask[:, start_idx:end_idx] if attention_mask is not None else None
             chunk_pos = (token_position or 0) + start_idx
             
-            # Process chunk through all layers
+            # Process chunk through all layers with memory management
             for layer_idx, layer in enumerate(self.layers):
+                # Clear cache every few chunks to prevent memory buildup
+                if start_idx % (chunk_size * 4) == 0:
+                    self.genome_cache.clear()
+                    torch.cuda.empty_cache() if torch.cuda.is_available() else None
+                
                 genome_vec = self._create_multi_scale_genome(layer_idx, chunk_pos)
                 chunk = layer(
                     chunk,
                     genome_vec=genome_vec,
                     attention_mask=chunk_mask,
-                    use_cache=use_cache,
+                    use_cache=False,  # Disable caching for memory efficiency
                     token_position=chunk_pos
                 )
+                
+                # Delete intermediate tensors
+                del genome_vec
             
             output[:, start_idx:end_idx, :] = chunk
+            del chunk  # Explicit cleanup
         
         return self.norm(output)
     
