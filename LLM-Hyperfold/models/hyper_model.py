@@ -438,14 +438,108 @@ class HyperLlamaForCausalLM(LlamaPreTrainedModel):
         self.model.reset_sequence()
     
     def get_memory_usage(self):
-        """Get current memory usage of the model"""
+        """Get current memory usage of the model - optimized for edge deployment"""
         total_params = sum(p.numel() for p in self.parameters())
-        total_size_mb = total_params * 4 / (1024 * 1024)  # Assuming float32
+        total_buffers = sum(b.numel() for b in self.buffers())
+        
+        # Count compressed vs full parameters
+        compressed_params = 0
+        full_params = 0
+        
+        for name, param in self.named_parameters():
+            if 'compressor' in name or 'expander' in name or 'hyper' in name or 'genome' in name:
+                compressed_params += param.numel()
+            else:
+                full_params += param.numel()
+        
+        # Estimate memory in MB (FP32)
+        param_memory = (total_params * 4) / (1024 * 1024)
+        buffer_memory = (total_buffers * 4) / (1024 * 1024)
+        total_memory = param_memory + buffer_memory
+        
+        compression_ratio = full_params / compressed_params if compressed_params > 0 else 1.0
+        
         return {
             'total_parameters': total_params,
-            'size_mb': total_size_mb,
-            'cached_genomes': len(self.model.genome_cache),
-            'emergency_mode': self.model.emergency_mode
+            'compressed_parameters': compressed_params,
+            'full_parameters': full_params,
+            'compression_ratio': compression_ratio,
+            'size_mb': total_memory,
+            'param_mb': param_memory,
+            'buffer_mb': buffer_memory,
+            'edge_ready': total_memory < 500,  # Target: <500MB for edge deployment
+        }
+    
+    def optimize_for_edge_deployment(self):
+        """Optimize model for edge deployment: <500MB RAM, <10ms per token"""
+        print("🚀 Optimizing for edge deployment...")
+        
+        # Clear all caches
+        if hasattr(self.model, 'genome_cache'):
+            self.model.genome_cache.clear()
+        
+        # Enable emergency mode for all layers
+        for layer in self.model.layers:
+            if hasattr(layer.self_attn, 'enable_emergency_mode'):
+                layer.self_attn.enable_emergency_mode(True)
+            if hasattr(layer.mlp, 'enable_emergency_mode'):
+                layer.mlp.enable_emergency_mode(True)
+        
+        # Set model to eval mode and disable gradients
+        self.eval()
+        for param in self.parameters():
+            param.requires_grad = False
+            
+        # Clear GPU cache if available
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            
+        memory_info = self.get_memory_usage()
+        print(f"📊 Edge deployment ready: {memory_info['edge_ready']}")
+        print(f"📊 Total memory: {memory_info['size_mb']:.1f}MB")
+        print(f"📊 Compression ratio: {memory_info['compression_ratio']:.1f}x")
+        
+        return memory_info
+            
+        # Clear GPU cache if available
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            
+        memory_info = self.get_memory_usage()
+        print(f"📊 Edge deployment ready: {memory_info['edge_ready']}")
+        print(f"📊 Total memory: {memory_info['size_mb']:.1f}MB")
+        print(f"📊 Compression ratio: {memory_info['compression_ratio']:.1f}x")
+        
+        return memory_info
+        total_params = sum(p.numel() for p in self.parameters())
+        total_buffers = sum(b.numel() for b in self.buffers())
+        
+        # Count compressed vs full parameters
+        compressed_params = 0
+        full_params = 0
+        
+        for name, param in self.named_parameters():
+            if 'compressor' in name or 'expander' in name or 'hyper' in name or 'genome' in name:
+                compressed_params += param.numel()
+            else:
+                full_params += param.numel()
+        
+        # Estimate memory in MB (FP32)
+        param_memory = (total_params * 4) / (1024 * 1024)
+        buffer_memory = (total_buffers * 4) / (1024 * 1024)
+        total_memory = param_memory + buffer_memory
+        
+        compression_ratio = full_params / compressed_params if compressed_params > 0 else 1.0
+        
+        return {
+            'total_parameters': total_params,
+            'compressed_parameters': compressed_params,
+            'full_parameters': full_params,
+            'compression_ratio': compression_ratio,
+            'size_mb': total_memory,
+            'param_mb': param_memory,
+            'buffer_mb': buffer_memory,
+            'edge_ready': total_memory < 500,  # Target: <500MB for edge deployment
         }
 
 # Test with ALL 14 innovations

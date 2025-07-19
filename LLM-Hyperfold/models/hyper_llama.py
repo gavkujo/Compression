@@ -40,34 +40,67 @@ class HyperLlamaAttention(LlamaAttention):
                 super().__init__(config)
         self.layer_idx = layer_idx
         self.genome_proj = genome_proj
-        self.hyper_qkv = FactorizedBasisHyperLayer(hyper_hidden, config.hidden_size * 3, config.hidden_size, M, rank, top_k)
-        self.hyper_o = FactorizedBasisHyperLayer(hyper_hidden, config.hidden_size, config.hidden_size, M, rank, top_k)
+        
+        # ✅ Use pre-compressed dimensions to prevent memory explosion
+        self.compressed_hidden = max(1, config.hidden_size // 8)
+        
+        # Pass compressed dimensions directly - no internal compression needed!
+        self.hyper_qkv = FactorizedBasisHyperLayer(hyper_hidden, self.compressed_hidden * 3, self.compressed_hidden, M, rank, top_k)
+        self.hyper_o = FactorizedBasisHyperLayer(hyper_hidden, self.compressed_hidden, self.compressed_hidden, M, rank, top_k)
+        
+        # ✅ Initialize compression/expansion layers for edge deployment
+        
+        # Input compressor: full -> compressed hidden
+        self.input_compressor = nn.Linear(config.hidden_size, self.compressed_hidden, bias=False)
+        # Output expander: compressed hidden -> full
+        self.output_expander = nn.Linear(self.compressed_hidden, config.hidden_size, bias=False)
+        
+        # Initialize with Xavier/Glorot initialization for stability
+        nn.init.xavier_uniform_(self.input_compressor.weight)
+        nn.init.xavier_uniform_(self.output_expander.weight)
     def forward(self, hidden_states, genome_vec, attention_mask=None, use_cache=False, token_position=0):
         B, T, E = hidden_states.shape
         # Project genome vector
         z_proj = self.genome_proj(genome_vec, self.layer_idx, token_position)
-        # Generate QKV and output weights using hypernetwork
-        qkv_weight, _ = self.hyper_qkv(z_proj)
-        o_weight, _ = self.hyper_o(z_proj)
-        # Split QKV
-        qkv = torch.matmul(hidden_states, qkv_weight.T)
-        q, k, v = torch.chunk(qkv, 3, dim=-1)
-        # Scaled dot-product attention
-        attn_scores = torch.matmul(q, k.transpose(-2, -1)) / (E ** 0.5)
+        # Generate compressed weights using hypernetwork
+        qkv_weight, _ = self.hyper_qkv(z_proj)  # [compressed_hidden*3, compressed_hidden]
+        o_weight, _ = self.hyper_o(z_proj)      # [compressed_hidden, compressed_hidden]
+        
+        # Get compressed dimensions from pre-initialized layers
+        compressed_hidden = self.compressed_hidden
+        
+        # ✅ COMPRESSION STEP: Compress input hidden states
+        # Use pre-initialized compression layers for consistency
+        compressed_input = self.input_compressor(hidden_states)  # [B, T, E] -> [B, T, compressed_hidden]
+        
+        # Apply compressed attention operations
+        # Split QKV using compressed dimensions
+        qkv = torch.matmul(compressed_input, qkv_weight.T)  # [B, T, compressed_hidden*3]
+        q, k, v = torch.chunk(qkv, 3, dim=-1)              # Each: [B, T, compressed_hidden]
+        
+        # Scaled dot-product attention with compressed dimensions
+        attn_scores = torch.matmul(q, k.transpose(-2, -1)) / (compressed_hidden ** 0.5)
         if attention_mask is not None:
+            # Adjust attention mask for compressed sequence if needed
             attn_scores = attn_scores.masked_fill(attention_mask == 0, float('-inf'))
         attn_probs = torch.softmax(attn_scores, dim=-1)
-        attn_output = torch.matmul(attn_probs, v)
-        # Output projection
-        attn_output = torch.matmul(attn_output, o_weight.T)
+        attn_output = torch.matmul(attn_probs, v)  # [B, T, compressed_hidden]
+        
+        # Output projection with compressed dimensions
+        attn_output = torch.matmul(attn_output, o_weight.T)  # [B, T, compressed_hidden]
+        
+        # ✅ EXPANSION STEP: Expand back to full dimensions
+        # Expand output: [B, T, compressed_hidden] -> [B, T, E]
+        output = self.output_expander(attn_output)
         # Emergency mode: use faster approximation but maintain dimensions
         if hasattr(self, 'emergency_mode') and self.emergency_mode:
             # Use only half the attention heads for computation but pad back to full size
-            half_dim = E // 2
+            half_dim = compressed_hidden // 2
             fast_output = attn_output[:, :, :half_dim]
-            # Pad with zeros to maintain shape consistency
+            # Pad with zeros to maintain compressed shape consistency
             attn_output = torch.cat([fast_output, torch.zeros_like(fast_output)], dim=-1)
-        return (attn_output, attn_probs, None)
+            output = self.output_expander(attn_output)
+        return (output, attn_probs, None)
     def reset_sequence(self):
         # Reset any caches or state variables used for streaming or temporal inheritance
         if hasattr(self, 'attention_cache'):
@@ -93,34 +126,59 @@ class HyperLlamaMLP(nn.Module):
     def __init__(self, config, genome_proj: nn.Module, hyper_hidden: int, M: int = 16, rank: int = 32, genome_dim: int = 96):
         super().__init__()
         self.genome_proj = genome_proj
-        self.hyper_gate = FactorizedBasisHyperLayer(hyper_hidden, config.intermediate_size, config.hidden_size, M, rank)
-        self.hyper_up = FactorizedBasisHyperLayer(hyper_hidden, config.intermediate_size, config.hidden_size, M, rank)
-        self.hyper_down = FactorizedBasisHyperLayer(hyper_hidden, config.hidden_size, config.intermediate_size, M, rank)
+        
+        # ✅ Use pre-compressed dimensions to prevent memory explosion
+        self.compressed_hidden = max(1, config.hidden_size // 8)
+        self.compressed_intermediate = max(1, config.intermediate_size // 8)
+        
+        # Pass compressed dimensions directly - no internal compression needed!
+        self.hyper_gate = FactorizedBasisHyperLayer(hyper_hidden, self.compressed_intermediate, self.compressed_hidden, M, rank)
+        self.hyper_up = FactorizedBasisHyperLayer(hyper_hidden, self.compressed_intermediate, self.compressed_hidden, M, rank)
+        self.hyper_down = FactorizedBasisHyperLayer(hyper_hidden, self.compressed_hidden, self.compressed_intermediate, M, rank)
+        
+        # Input compressor: full -> compressed hidden
+        self.input_compressor = nn.Linear(config.hidden_size, self.compressed_hidden, bias=False)
+        # Output expander: compressed hidden -> full  
+        self.output_expander = nn.Linear(self.compressed_hidden, config.hidden_size, bias=False)
+        
+        # Initialize with Xavier/Glorot initialization for stability
+        nn.init.xavier_uniform_(self.input_compressor.weight)
+        nn.init.xavier_uniform_(self.output_expander.weight)
     def forward(self, hidden_states: torch.Tensor, genome_vec: torch.Tensor, token_position: int = 0, use_cache=False):
         B, T, E = hidden_states.shape
         # Project genome vector
         z_proj = self.genome_proj(genome_vec, token_position=token_position)
-        # Generate gate, up, down weights
-        W_gate, _ = self.hyper_gate(z_proj)
-        W_up, _ = self.hyper_up(z_proj)
-        W_down, _ = self.hyper_down(z_proj)
-        # Gate
-        gate = torch.sigmoid(torch.matmul(hidden_states, W_gate.T))
-        # Up projection
-        up = torch.matmul(hidden_states, W_up.T)
+        # Generate compressed weights
+        W_gate, _ = self.hyper_gate(z_proj)    # [compressed_intermediate, compressed_hidden]
+        W_up, _ = self.hyper_up(z_proj)       # [compressed_intermediate, compressed_hidden]
+        W_down, _ = self.hyper_down(z_proj)   # [compressed_hidden, compressed_intermediate]
+        
+        # Get compressed dimensions from pre-initialized layers
+        compressed_hidden = self.compressed_hidden
+        compressed_intermediate = self.compressed_intermediate
+        
+        # ✅ COMPRESSION STEP: Compress input hidden states
+        # Use pre-initialized compression layers for consistency
+        compressed_input = self.input_compressor(hidden_states)  # [B, T, E] -> [B, T, compressed_hidden]
+        
+        # Apply compressed MLP operations
+        gate = torch.sigmoid(torch.matmul(compressed_input, W_gate.T))  # [B, T, compressed_intermediate]
+        up = torch.matmul(compressed_input, W_up.T)                      # [B, T, compressed_intermediate]
         up = F.gelu(up)
-        # Apply gate to up projection (both should have intermediate_size)
-        gated_up = gate * up
-        # Down projection back to hidden_size
-        down = torch.matmul(gated_up, W_down.T)
-        output = down
+        gated_up = gate * up                                             # [B, T, compressed_intermediate]
+        down = torch.matmul(gated_up, W_down.T)                         # [B, T, compressed_hidden]
+        
+        # ✅ EXPANSION STEP: Expand back to full dimensions
+        # Expand output: [B, T, compressed_hidden] -> [B, T, E]
+        output = self.output_expander(down)
         # Emergency mode: use faster approximation but maintain dimensions
         if hasattr(self, 'emergency_mode') and self.emergency_mode:
             # Use only half the computation but pad back to full size
-            half_dim = E // 2
-            fast_output = output[:, :, :half_dim]
-            # Pad with zeros to maintain shape consistency
-            output = torch.cat([fast_output, torch.zeros_like(fast_output)], dim=-1)
+            half_dim = compressed_hidden // 2
+            fast_output = down[:, :, :half_dim]
+            # Pad with zeros to maintain compressed shape consistency
+            down = torch.cat([fast_output, torch.zeros_like(fast_output)], dim=-1)
+            output = self.output_expander(down)
         return output
     def _get_position_encoding(self, position: int) -> torch.Tensor:
         # Simple sinusoidal encoding

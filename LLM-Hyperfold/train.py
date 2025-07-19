@@ -2,7 +2,16 @@
 """
 🚀 UNIVERSAL HYPERNETWORK TRAINER
 ================================
-Train the universal hypernetwork + 4 expert genomes on specialized datasets
+Train the universal        # Use compressed config for edge deployment (prevent memory explosion)
+        compressed_config = LlamaConfig(
+            vocab_size=1000,        # Compressed vocabulary
+            hidden_size=512,        # Compressed hidden size  
+            intermediate_size=1024, # Compressed intermediate
+            num_hidden_layers=8,    # Reduced layers
+            num_attention_heads=8,  # Reduced heads
+            max_position_embeddings=2048,
+            rms_norm_eps=1e-6,
+        )ork + 4 expert genomes on specialized datasets
 """
 
 import torch

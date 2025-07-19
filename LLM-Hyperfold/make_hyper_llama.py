@@ -36,16 +36,16 @@ def print_compression_stats(model):
     print(f"Estimated RAM (8-bit): {quant_bytes/1e6:.1f}MB")
 
 def build_hyper_llama(
-    vocab_size=400,  # Changed from 32000 to match tokenizer
-    hidden_size=4096,
-    intermediate_size=11008,
-    num_hidden_layers=32,
-    num_attention_heads=32,
-    genome_dim=96, # 96 for 6B model
-    hyper_hidden=256, # 256 for 6B model
-    M=32, # 32 for 6B model
-    rank=64, # 64 for 6B model
-    top_k=4, # 8 for 6B model
+    vocab_size=1000,  # Compressed vocabulary for edge deployment
+    hidden_size=512,  # Compressed hidden size for edge deployment  
+    intermediate_size=1024,  # Compressed intermediate size for edge deployment
+    num_hidden_layers=8,  # Reduced layers for edge deployment
+    num_attention_heads=8,  # Reduced heads for edge deployment
+    genome_dim=96, # 96 for edge deployment
+    hyper_hidden=128, # 128 for edge deployment (reduced from 256)
+    M=16, # 16 for edge deployment (reduced from 32)
+    rank=32, # 32 for edge deployment (reduced from 64)
+    top_k=4, # 4 for edge deployment
 ):
     """Build a custom HyperLlama model"""
     log("Building LlamaConfig...")
@@ -83,14 +83,20 @@ def build_hyper_llama(
     return model, config
 
 if __name__ == "__main__":
-    # Build a ~6B parameter model
-    log("Starting HyperLLaMA model build")
+    # Build edge deployment model (optimized for <500MB RAM, <10ms per token)
+    log("Starting HyperLLaMA edge deployment model build")
     start_time = time.time()
     model, config = build_hyper_llama(
-        hidden_size=1024, # 4096 for 6B model
-        intermediate_size=2048, # 11008 for 6B model
-        num_hidden_layers=8, # 32 layers for 6B model
-        num_attention_heads=8 # 32 heads for 6B model
+        vocab_size=1000,         # Compressed vocabulary
+        hidden_size=512,         # Compressed hidden (down from 4096)
+        intermediate_size=1024,  # Compressed intermediate (down from 11008)
+        num_hidden_layers=8,     # Fewer layers (down from 32)
+        num_attention_heads=8,   # Fewer heads (down from 32)
+        genome_dim=96,           # Optimized genome
+        hyper_hidden=128,        # Compressed hypernetwork (down from 256)
+        M=16,                    # Fewer experts (down from 32)
+        rank=32,                 # Lower rank (down from 64)
+        top_k=4                  # Efficient routing
     )
     elapsed = time.time() - start_time
     log(f"Model build done in {elapsed:.2f} seconds")
