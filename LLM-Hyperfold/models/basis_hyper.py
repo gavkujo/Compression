@@ -135,12 +135,30 @@ class FactorizedBasisHyperLayer(nn.Module):
         # Smart Upsampling
         W = torch.einsum('moi,mik->mok', U, V)
         W = W.mean(dim=0)
-        W = torch.nn.functional.interpolate(W.unsqueeze(0), size=(self.compressed_out_dim, self.compressed_in_dim), mode='bilinear', align_corners=False).squeeze(0)
+        
+        # Ensure correct shape - no interpolation needed if already correct size
+        if W.shape != (self.compressed_out_dim, self.compressed_in_dim):
+            # Use repeat/pad instead of interpolate for better compatibility
+            current_out, current_in = W.shape
+            if current_out < self.compressed_out_dim:
+                repeat_factor = (self.compressed_out_dim + current_out - 1) // current_out
+                W = W.repeat(repeat_factor, 1)[:self.compressed_out_dim]
+            if current_in < self.compressed_in_dim:
+                repeat_factor = (self.compressed_in_dim + current_in - 1) // current_in
+                W = W.repeat(1, repeat_factor)[:, :self.compressed_in_dim]
+            
+            # Trim if too large
+            W = W[:self.compressed_out_dim, :self.compressed_in_dim]
+        
         # LoRA adaptation
         W_lora = torch.einsum('moi,mik->mok', lora_A, lora_B).mean(dim=0)
+        # Ensure LoRA has same shape as W
+        if W_lora.shape != W.shape:
+            W_lora = W_lora[:W.shape[0], :W.shape[1]]
         W = W + W_lora
-        # Upsample to target size
-        W = torch.nn.functional.interpolate(W.unsqueeze(0), size=(self.compressed_out_dim * 8, self.compressed_in_dim * 8), mode='bilinear', align_corners=False).squeeze(0)
+        
+        # Upsample to target size using repeat instead of interpolate
+        W = W.repeat(8, 8)
         # Final output shape
         W = W[:self.compressed_out_dim * 8, :self.compressed_in_dim * 8]
         b = b.repeat_interleave(8)[:self.compressed_out_dim * 8]
