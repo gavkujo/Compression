@@ -82,6 +82,7 @@ class HyperLlamaModel(LlamaPreTrainedModel):
                 layer.self_attn.set_weights(weights)
             if hasattr(layer.mlp, 'set_weights'):
                 layer.mlp.set_weights(weights)
+    
     """
     Full LLaMA model with ALL 14 innovations integrated
     """
@@ -303,6 +304,10 @@ class HyperLlamaForCausalLM(LlamaPreTrainedModel):
         
         # Initialize weights
         self.post_init()
+
+    def set_layer_weights(self, weights_list):
+        """Delegate weight injection to the underlying model"""
+        return self.model.set_layer_weights(weights_list)
 
     def forward(
         self,
