@@ -87,13 +87,13 @@ class UltraLightweightInference:
                 config_dict = json.load(f)
             llama_config = LlamaConfig(**config_dict)
         else:
-            # fallback to edge config
+            # Hardcoded 1B config (no edge fallback)
             llama_config = LlamaConfig(
-                vocab_size=self.vocab_size,
-                hidden_size=512,
-                intermediate_size=1024,
-                num_hidden_layers=8,
-                num_attention_heads=8,
+                vocab_size=2145,  # 1B tokenizer vocab
+                hidden_size=2048,
+                intermediate_size=8192,
+                num_hidden_layers=24,
+                num_attention_heads=16,
                 max_position_embeddings=2048,
                 rms_norm_eps=1e-6,
             )
