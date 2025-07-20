@@ -218,11 +218,11 @@ def main():
     print("Edge deployment: <500MB RAM, <10ms/token, <100MB storage")
     try:
         engine = UltraLightweightInference(
-            checkpoint_path=None,  # Set to checkpoint if available
+            checkpoint_path= "checkpoints/best_hypernetwork_1B.pt",  # Set to checkpoint if available
             cpu_threads=4,
             enable_quantization=True,
-            tokenizer_path=None,  # Set to tokenizer if available
-            vocab_size=None  # Set dynamically if needed
+            tokenizer_path= "scripts/tokenizer_1B/tokenizer.json",  # Set to tokenizer if available
+            vocab_size= 2145  # Set dynamically if needed
         )
         print("\n💬 Interactive Chat Mode")
         print("Type your prompt below. Type 'exit' to quit.\n")
