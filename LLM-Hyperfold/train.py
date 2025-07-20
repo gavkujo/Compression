@@ -568,16 +568,17 @@ class HyperNetworkTrainer:
             print(f"   Average Loss: {avg_loss:.4f}")
             for expert, loss in expert_losses.items():
                 print(f"   {expert.title()} Loss: {loss:.4f}")
-            # Compute perplexity every epoch
-            print("🔎 Computing perplexity on validation set...")
-            val_loader = self.combined_loader  # For now, use combined loader as validation
-            perplexity = self.compute_perplexity(val_loader)
-            print(f"   Perplexity: {perplexity:.2f}")
-            self.training_stats.setdefault('perplexities', []).append(perplexity)
+            # Compute perplexity every epoch (DISABLED FOR NOW - FOCUS ON INFERENCE)
+            # print("🔎 Computing perplexity on validation set...")
+            # val_loader = self.combined_loader  # For now, use combined loader as validation
+            # perplexity = self.compute_perplexity(val_loader)
+            # print(f"   Perplexity: {perplexity:.2f}")
+            # self.training_stats.setdefault('perplexities', []).append(perplexity)
+            perplexity = None  # Skip for now
             # Evaluate every few epochs
             if (epoch + 1) % 2 == 0 or epoch == self.config.num_epochs - 1:
                 metrics = self.evaluate()
-                metrics['perplexity'] = perplexity
+                metrics['perplexity'] = perplexity if perplexity else 0.0
                 # Save best model
                 if avg_loss < self.best_loss:
                     self.best_loss = avg_loss
@@ -593,7 +594,7 @@ class HyperNetworkTrainer:
         print("\n🎉 Training completed!")
         # Final evaluation
         final_metrics = self.evaluate()
-        final_metrics['perplexity'] = self.training_stats['perplexities'][-1] if 'perplexities' in self.training_stats else None
+        final_metrics['perplexity'] = self.training_stats.get('perplexities', [0.0])[-1] if 'perplexities' in self.training_stats else 0.0
         # Save final model
         self.save_checkpoint(
             f"checkpoints/final_hypernetwork_{self.config.target_model_size}.pt",
