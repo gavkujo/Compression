@@ -74,10 +74,10 @@ class UltraLightweightInference:
         print("🏗️ Initializing compressed transformer...")
         compressed_config = LlamaConfig(
             vocab_size=self.vocab_size,
-            hidden_size=512,
-            intermediate_size=1024,
-            num_hidden_layers=8,
-            num_attention_heads=8,
+            hidden_size=2048, #512 for edge deployment
+            intermediate_size=8192, #4096 for edge deployment
+            num_hidden_layers=24, #8 for edge deployment
+            num_attention_heads=16, #8 for edge deployment
             max_position_embeddings=2048,
             rms_norm_eps=1e-6,
         )
