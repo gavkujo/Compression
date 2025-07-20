@@ -203,11 +203,16 @@ class UltraLightweightInference:
         with torch.no_grad():
             for _ in range(max_length):
                 x = torch.tensor([output_ids], dtype=torch.long, device=self.device)
-                hidden = x
+                # Embed the input token IDs to get correct hidden shape
+                if hasattr(self.transformer, 'model') and hasattr(self.transformer.model, 'embed_tokens'):
+                    hidden = self.transformer.model.embed_tokens(x)
+                elif hasattr(self.transformer, 'embed_tokens'):
+                    hidden = self.transformer.embed_tokens(x)
+                else:
+                    raise RuntimeError("Model does not have an embedding layer 'embed_tokens'.")
                 print(f"[DEBUG] Input hidden shape before layers: {hidden.shape}")
                 for layer_idx, layer in enumerate(self.transformer.model.layers):
                     layer.reset_sequence()  # Clear any cache/state
-                    # Pass the default genome vector (shape: [1, genome_dim])
                     try:
                         hidden = layer(hidden, genome_vec=default_genome_vec, attention_mask=None, use_cache=False, token_position=len(output_ids))
                     except Exception as e:
