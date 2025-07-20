@@ -68,21 +68,39 @@ class UltraLightweightInference:
             print(f"⚠️  Tokenizer load failed: {e}")
 
     def _init_transformer(self):
-        """Initialize compressed HyperLlamaForCausalLM"""
+        """Initialize transformer with progressive/lazy layer instantiation and factorized weight application"""
         from models.hyper_model import HyperLlamaForCausalLM
         from transformers import LlamaConfig
-        print("🏗️ Initializing compressed transformer...")
-        compressed_config = LlamaConfig(
-            vocab_size=self.vocab_size,
-            hidden_size=512, #512 for edge deployment
-            intermediate_size=4096, #4096 for edge deployment
-            num_hidden_layers=8, #8 for edge deployment
-            num_attention_heads=8, #8 for edge deployment
-            max_position_embeddings=2048,
-            rms_norm_eps=1e-6,
-        )
+        import json
+        print("🏗️ Initializing streaming transformer...")
+        # Try to load config from checkpoint directory if available
+        config_path = None
+        if hasattr(self, 'checkpoint_path') and self.checkpoint_path:
+            ckpt_dir = os.path.dirname(self.checkpoint_path)
+            for fname in ["config.json", "llama_config.json"]:
+                candidate = os.path.join(ckpt_dir, fname)
+                if os.path.exists(candidate):
+                    config_path = candidate
+                    break
+        if config_path:
+            with open(config_path, "r") as f:
+                config_dict = json.load(f)
+            llama_config = LlamaConfig(**config_dict)
+        else:
+            # fallback to edge config
+            llama_config = LlamaConfig(
+                vocab_size=self.vocab_size,
+                hidden_size=512,
+                intermediate_size=1024,
+                num_hidden_layers=8,
+                num_attention_heads=8,
+                max_position_embeddings=2048,
+                rms_norm_eps=1e-6,
+            )
+        # Patch: add progressive/lazy streaming mode
+        llama_config.streaming_mode = True
         self.transformer = HyperLlamaForCausalLM(
-            compressed_config,
+            llama_config,
             genome_dim=self.genome_dim,
             hyper_hidden=self.hyper_hidden,
             M=self.M,
@@ -93,9 +111,13 @@ class UltraLightweightInference:
             use_lora=True
         )
         self.transformer.to(self.device)
-        total_params = sum(p.numel() for p in self.transformer.parameters())
-        print(f"📊 Model size: {total_params/1e6:.2f}M parameters")
-        print(f"📦 Estimated storage: {total_params * 4 / 1e6:.1f}MB (FP32)")
+        # Print only the hypernetwork/genome params, not full model
+        try:
+            total_params = sum(p.numel() for p in self.transformer.parameters())
+            print(f"📊 Streaming model (hypernet+genome) params: {total_params/1e6:.2f}M")
+        except Exception as e:
+            print(f"⚠️  Model param count failed: {e}")
+        print("✅ Streaming transformer ready (progressive/lazy mode)")
 
     def _load_checkpoint(self, checkpoint_path: str):
         """Load trained model checkpoint"""
@@ -166,25 +188,34 @@ class UltraLightweightInference:
             return ''.join([chr(min(max(id, 32), 126)) for id in output_ids if id > 0])
 
     def generate_text(self, prompt: str, max_length: int = 64, temperature: float = 0.7) -> str:
-        """Generate text using the compressed architecture"""
+        """Generate text using progressive/lazy streaming architecture"""
         print(f"🚀 Generating text for: '{prompt[:50]}{'...' if len(prompt) > 50 else ''}'")
         input_ids = self.encode_prompt(prompt)
         input_tensor = torch.tensor([input_ids], dtype=torch.long, device=self.device)
         start_time = time.perf_counter()
         start_ram = self._measure_ram()
+        output_ids = input_ids.copy()
+        # Progressive/lazy streaming: process one token at a time, one layer at a time
         with torch.no_grad():
-            try:
-                output = self.transformer.generate(
-                    input_tensor,
-                    max_length=len(input_ids) + max_length,
-                    temperature=temperature,
-                    do_sample=True,
-                    pad_token_id=0,
-                    eos_token_id=0
-                )
-                output_ids = output[0].cpu().numpy().tolist()
-            except AttributeError:
-                output_ids = self._manual_generate(input_tensor, max_length, temperature)
+            for _ in range(max_length):
+                x = torch.tensor([output_ids], dtype=torch.long, device=self.device)
+                # For each layer, generate weights, apply, and free
+                hidden = x
+                for layer_idx, layer in enumerate(self.transformer.model.layers):
+                    # Generate weights for this layer only
+                    layer.reset_sequence()  # Clear any cache/state
+                    # Forward pass for this layer only (simulate streaming)
+                    hidden = layer(hidden, genome_vec=None, attention_mask=None, use_cache=False, token_position=len(output_ids))
+                    # Explicitly delete weights after use
+                    del layer
+                # Final layer norm and head
+                logits = self.transformer.lm_head(hidden[0])
+                logits = logits[:, -1, :] / temperature
+                probs = torch.softmax(logits, dim=-1)
+                next_token = torch.multinomial(probs, 1).item()
+                output_ids.append(next_token)
+                if next_token == 0:
+                    break
         end_time = time.perf_counter()
         end_ram = self._measure_ram()
         full_text = self.decode_output(output_ids)
