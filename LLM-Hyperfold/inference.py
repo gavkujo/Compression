@@ -195,21 +195,30 @@ class UltraLightweightInference:
         start_time = time.perf_counter()
         start_ram = self._measure_ram()
         output_ids = input_ids.copy()
+        # Prepare a default genome vector for streaming (match genome_dim)
+        genome_dim = getattr(self, 'genome_dim', 96)
+        batch_size = 1
+        default_genome_vec = torch.zeros((batch_size, genome_dim), dtype=torch.float32, device=self.device)
         # Progressive/lazy streaming: process one token at a time, one layer at a time
         with torch.no_grad():
             for _ in range(max_length):
                 x = torch.tensor([output_ids], dtype=torch.long, device=self.device)
-                # For each layer, generate weights, apply, and free
                 hidden = x
+                print(f"[DEBUG] Input hidden shape before layers: {hidden.shape}")
                 for layer_idx, layer in enumerate(self.transformer.model.layers):
-                    # Generate weights for this layer only
                     layer.reset_sequence()  # Clear any cache/state
-                    # Forward pass for this layer only (simulate streaming)
-                    hidden = layer(hidden, genome_vec=None, attention_mask=None, use_cache=False, token_position=len(output_ids))
-                    # Explicitly delete weights after use
-                    del layer
+                    # Pass the default genome vector (shape: [1, genome_dim])
+                    try:
+                        hidden = layer(hidden, genome_vec=default_genome_vec, attention_mask=None, use_cache=False, token_position=len(output_ids))
+                    except Exception as e:
+                        print(f"[ERROR] Layer {layer_idx} shape mismatch: {e}")
+                        print(f"[DEBUG] hidden shape: {hidden.shape}, genome_vec shape: {default_genome_vec.shape}")
+                        raise
+                    print(f"[DEBUG] After layer {layer_idx}, hidden shape: {getattr(hidden, 'shape', type(hidden))}")
                 # Final layer norm and head
-                logits = self.transformer.lm_head(hidden[0])
+                if isinstance(hidden, (tuple, list)):
+                    hidden = hidden[0]
+                logits = self.transformer.lm_head(hidden)
                 logits = logits[:, -1, :] / temperature
                 probs = torch.softmax(logits, dim=-1)
                 next_token = torch.multinomial(probs, 1).item()
