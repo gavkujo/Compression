@@ -148,9 +148,6 @@ class HyperLlamaModel(LlamaPreTrainedModel):
         self.cache_enabled = True
         self.genome_cache = {}
         
-        # ✅ Innovation 14: Memory Caching
-        #self.genome_cache = {}
-        #self.cache_enabled = True
         
         # Initialize weights
         self.post_init()
