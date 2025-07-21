@@ -22,8 +22,12 @@ class UltraLightweightInference:
                  cpu_threads: int = 4,
                  enable_quantization: bool = True,
                  tokenizer_path: str = None,
-                 vocab_size: int = None):
+                 vocab_size: int = None,
+                 target_model_size: str = "1B",
+                 ablate_routing: bool = False,
+                 ablate_temporal: bool = False):
         print("⚡ Initializing Ultra-Lightweight Inference Engine...")
+        print(f"[DEBUG] Inference config: threads={cpu_threads}, quantization={enable_quantization}, model_size={target_model_size}, ablate_routing={ablate_routing}, ablate_temporal={ablate_temporal}")
         torch.set_num_threads(cpu_threads)
         torch.set_num_interop_threads(1)
         self.device = torch.device('cpu')
@@ -31,12 +35,24 @@ class UltraLightweightInference:
         self.inference_times = []
         self.memory_usage = []
         self.start_ram = self._measure_ram()
-        self.genome_dim = 96
-        self.hyper_hidden = 128
-        self.M = 16
-        self.rank = 32
-        self.top_k = 4
-        self.vocab_size = vocab_size or 1000
+        # --- Dynamic compression based on model size ---
+        MODEL_CONFIGS = {
+            "350M": {"genome_dim": 96, "hyper_hidden": 128, "M": 16, "rank": 32, "top_k": 4, "vocab_size": 16000},
+            "1B":   {"genome_dim": 128, "hyper_hidden": 256, "M": 32, "rank": 64, "top_k": 4, "vocab_size": 2145},
+            "3B":   {"genome_dim": 192, "hyper_hidden": 384, "M": 48, "rank": 96, "top_k": 6, "vocab_size": 48000},
+            "6B":   {"genome_dim": 256, "hyper_hidden": 512, "M": 64, "rank": 128, "top_k": 8, "vocab_size": 64000},
+            "14B":  {"genome_dim": 384, "hyper_hidden": 768, "M": 64, "rank": 128, "top_k": 8, "vocab_size": 128000}
+        }
+        config = MODEL_CONFIGS.get(target_model_size, MODEL_CONFIGS["1B"])
+        self.genome_dim = config["genome_dim"]
+        self.hyper_hidden = config["hyper_hidden"]
+        self.M = config["M"]
+        self.rank = config["rank"]
+        self.top_k = config["top_k"]
+        self.vocab_size = vocab_size or config["vocab_size"]
+        self.target_model_size = target_model_size
+        self.ablate_routing = ablate_routing
+        self.ablate_temporal = ablate_temporal
         self._init_tokenizer(tokenizer_path)
         self._init_transformer()
         if checkpoint_path and os.path.exists(checkpoint_path):
@@ -46,6 +62,11 @@ class UltraLightweightInference:
         self._optimize_for_inference()
         print(f"✅ Inference engine ready!")
         print(f"📊 Base RAM: {self.start_ram:.1f}MB")
+        print(f"[DEBUG] Genome/hyper params: genome_dim={self.genome_dim}, hyper_hidden={self.hyper_hidden}, M={self.M}, rank={self.rank}, top_k={self.top_k}, vocab_size={self.vocab_size}")
+        print("🔬 Parameter trainability status:")
+        for name, param in self.transformer.named_parameters():
+            print(f"[DEBUG] {name}: requires_grad={param.requires_grad}, shape={param.shape}")
+            print(f"  {name}: requires_grad={param.requires_grad}")
 
     def _measure_ram(self) -> float:
         """Measure current RAM usage in MB"""
@@ -73,6 +94,7 @@ class UltraLightweightInference:
         from transformers import LlamaConfig
         import json
         print("🏗️ Initializing streaming transformer...")
+        print(f"[DEBUG] Streaming transformer config: genome_dim={self.genome_dim}, hyper_hidden={self.hyper_hidden}, M={self.M}, rank={self.rank}, top_k={self.top_k}")
         # Try to load config from checkpoint directory if available
         config_path = None
         if hasattr(self, 'checkpoint_path') and self.checkpoint_path:
@@ -87,13 +109,13 @@ class UltraLightweightInference:
                 config_dict = json.load(f)
             llama_config = LlamaConfig(**config_dict)
         else:
-            # Hardcoded 1B config (no edge fallback)
+            # Hardcoded config for selected model size
             llama_config = LlamaConfig(
-                vocab_size=2145,  # 1B tokenizer vocab
-                hidden_size=2048,
-                intermediate_size=8192,
-                num_hidden_layers=24,
-                num_attention_heads=16,
+                vocab_size=self.vocab_size,
+                hidden_size=2048 if self.target_model_size=="1B" else 1024,
+                intermediate_size=8192 if self.target_model_size=="1B" else 4096,
+                num_hidden_layers=24 if self.target_model_size=="1B" else 24,
+                num_attention_heads=16 if self.target_model_size=="1B" else 16,
                 max_position_embeddings=2048,
                 rms_norm_eps=1e-6,
             )
@@ -108,9 +130,17 @@ class UltraLightweightInference:
             top_k=self.top_k,
             lora_rank=8,
             lora_alpha=1.0,
-            use_lora=True
+            use_lora=True,
+            ablate_routing=self.ablate_routing,
+            ablate_temporal=self.ablate_temporal
         )
         self.transformer.to(self.device)
+        # --- Tokenizer alignment check ---
+        if self.tokenizer:
+            model_vocab_size = self.tokenizer.vocab_size
+            config_vocab_size = llama_config.vocab_size
+            if model_vocab_size != config_vocab_size:
+                raise ValueError(f"Tokenizer vocab size ({model_vocab_size}) does not match model config ({config_vocab_size})")
         # Print only the hypernetwork/genome params, not full model
         try:
             total_params = sum(p.numel() for p in self.transformer.parameters())
@@ -118,6 +148,7 @@ class UltraLightweightInference:
         except Exception as e:
             print(f"⚠️  Model param count failed: {e}")
         print("✅ Streaming transformer ready (progressive/lazy mode)")
+        print(f"[DEBUG] Tokenizer alignment: {self.tokenizer is not None}")
 
     def _load_checkpoint(self, checkpoint_path: str):
         """Load trained model checkpoint"""
@@ -139,6 +170,7 @@ class UltraLightweightInference:
     def _optimize_for_inference(self):
         """Apply optimizations for edge deployment"""
         print("🔧 Applying edge deployment optimizations...")
+        print(f"[DEBUG] Quantization enabled: {self.enable_quantization}")
         self.transformer.eval()
         for param in self.transformer.parameters():
             param.requires_grad = False
@@ -151,6 +183,7 @@ class UltraLightweightInference:
     def _apply_quantization(self):
         """Apply 8-bit quantization for memory efficiency"""
         print("🗜️  Applying INT8 quantization...")
+        print(f"[DEBUG] Quantization bits: 8")
         def quantize_tensor(tensor, bits=8):
             """Quantize tensor to specified bits"""
             if tensor.numel() == 0:
@@ -170,6 +203,7 @@ class UltraLightweightInference:
             if param.dim() > 1:
                 param.data = quantize_tensor(param.data)
         print("✅ Quantization applied")
+        print(f"[DEBUG] Quantized parameter shapes: {[param.shape for name, param in self.transformer.named_parameters()]}")
 
     def encode_prompt(self, prompt: str) -> list:
         """Encode prompt to input IDs"""
@@ -190,6 +224,7 @@ class UltraLightweightInference:
     def generate_text(self, prompt: str, max_length: int = 64, temperature: float = 0.7) -> str:
         """Generate text using progressive/lazy streaming architecture"""
         print(f"🚀 Generating text for: '{prompt[:50]}{'...' if len(prompt) > 50 else ''}'")
+        print(f"[DEBUG] Input tensor shape: {input_tensor.shape}, genome_dim={genome_dim}")
         input_ids = self.encode_prompt(prompt)
         input_tensor = torch.tensor([input_ids], dtype=torch.long, device=self.device)
         start_time = time.perf_counter()

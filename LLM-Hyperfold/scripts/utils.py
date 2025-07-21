@@ -10,8 +10,10 @@ def set_cpu_threads(num_threads=None):
         num_threads = psutil.cpu_count(logical=False)
     torch.set_num_threads(num_threads)
     print(f"Using {num_threads} CPU threads")
+    print(f"[DEBUG] set_cpu_threads: num_threads={num_threads}")
 
 def measure_latency(model, inputs, repeat=10):
+    print(f"[DEBUG] measure_latency: repeat={repeat}, input_keys={list(inputs.keys())}")
     """Measure inference latency"""
     # Warm up
     with torch.no_grad():
@@ -29,6 +31,7 @@ def measure_latency(model, inputs, repeat=10):
     return sum(timings) / len(timings) * 1000  # ms
 
 def measure_ram():
+    print(f"[DEBUG] measure_ram called")
     """Measure current and peak RAM usage"""
     process = psutil.Process()
     current = process.memory_info().rss / (1024 ** 2)  # MB
@@ -36,6 +39,7 @@ def measure_ram():
     return current, peak
 
 def compute_perplexity(model, tokenizer, dataset, device, max_samples=100, seq_len=512):
+    print(f"[DEBUG] compute_perplexity: max_samples={max_samples}, seq_len={seq_len}")
     """Compute perplexity on dataset"""
     model.eval()
     losses = []
@@ -73,6 +77,7 @@ def compute_perplexity(model, tokenizer, dataset, device, max_samples=100, seq_l
         return float('inf')
 
 def quantize_model(model, bits=8):
+    print(f"[DEBUG] quantize_model: bits={bits}")
     """Apply quantization to model weights"""
     for name, param in model.named_parameters():
         if "genome" not in name and "hyper" not in name:
@@ -85,6 +90,7 @@ def quantize_model(model, bits=8):
 # scripts/utils.py (even better version)
 
 def save_compressed(model, path):
+    print(f"[DEBUG] save_compressed: path={path}")
     """Save compressed model with quantization"""
     state = {
         'global_genome': model.model.global_genome.data,  # Keep FP32 for compatibility
@@ -106,6 +112,7 @@ def save_compressed(model, path):
     print(f"Saved compressed model to {path} ({total_params/1e6:.2f}M params)")
 
 def load_compressed(model, path, device):
+    print(f"[DEBUG] load_compressed: path={path}, device={device}")
     """Load quantized model"""
     state = torch.load(path, map_location=device)
     model.model.global_genome.data = state['global_genome'].float()

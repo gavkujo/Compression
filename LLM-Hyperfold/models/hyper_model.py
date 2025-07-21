@@ -11,6 +11,7 @@ class HyperLlamaDecoderLayer(nn.Module):
     Single decoder layer with ALL 14 innovations integrated
     """
     def __init__(self, config: LlamaConfig, layer_idx: int, genome_proj: nn.Module, hyper_hidden: int, M: int, rank: int, top_k: int = 4, genome_dim: int = 96):
+        print(f"[DEBUG] HyperLlamaDecoderLayer init: layer_idx={layer_idx}, hyper_hidden={hyper_hidden}, M={M}, rank={rank}, top_k={top_k}, genome_dim={genome_dim}")
         super().__init__()
         self.layer_idx = layer_idx
         self.self_attn = HyperLlamaAttention(config, layer_idx, genome_proj, hyper_hidden, M, rank, top_k, genome_dim)
@@ -87,6 +88,7 @@ class HyperLlamaModel(LlamaPreTrainedModel):
     Full LLaMA model with ALL 14 innovations integrated
     """
     def __init__(self, config, genome_dim=96, hyper_hidden=256, M=32, rank=64, top_k=4, lora_rank=8, lora_alpha=1.0, use_lora=True):
+        print(f"[DEBUG] HyperLlamaModel init: genome_dim={genome_dim}, hyper_hidden={hyper_hidden}, M={M}, rank={rank}, top_k={top_k}, lora_rank={lora_rank}, lora_alpha={lora_alpha}, use_lora={use_lora}")
         super().__init__(config)
         self.config = config
         
@@ -304,6 +306,7 @@ class HyperLlamaForCausalLM(LlamaPreTrainedModel):
     Causal LM with ALL 14 innovations integrated
     """
     def __init__(self, config, genome_dim=96, hyper_hidden=256, M=32, rank=64, top_k=4, lora_rank=8, lora_alpha=1.0, use_lora=True):
+        print(f"[DEBUG] HyperLlamaForCausalLM init: genome_dim={genome_dim}, hyper_hidden={hyper_hidden}, M={M}, rank={rank}, top_k={top_k}, lora_rank={lora_rank}, lora_alpha={lora_alpha}, use_lora={use_lora}")
         super().__init__(config)
         self.model = HyperLlamaModel(config, genome_dim, hyper_hidden, M, rank, top_k, lora_rank, lora_alpha, use_lora)
         

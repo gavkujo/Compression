@@ -10,6 +10,7 @@ class SharedGenomeProjection(nn.Module):
     Shared projection for genome vectors with multi-scale processing
     """
     def __init__(self, genome_dim: int, hidden_dim: int, compressed_vocab_size: int = 1000):
+        print(f"[DEBUG] SharedGenomeProjection init: genome_dim={genome_dim}, hidden_dim={hidden_dim}, compressed_vocab_size={compressed_vocab_size}")
         super().__init__()
         self.genome_dim = genome_dim
         self.hidden_dim = hidden_dim
@@ -28,6 +29,7 @@ class HyperLlamaAttention(LlamaAttention):
     Attention with ALL 14 innovations integrated
     """
     def __init__(self, config, layer_idx, genome_proj, hyper_hidden, M=32, rank=64, top_k=4, genome_dim=96):
+        print(f"[DEBUG] HyperLlamaAttention init: layer_idx={layer_idx}, hyper_hidden={hyper_hidden}, M={M}, rank={rank}, top_k={top_k}, genome_dim={genome_dim}")
         try:
             # Try new transformers version (4.30+) with layer_idx
             super().__init__(config, layer_idx=layer_idx)
@@ -59,6 +61,7 @@ class HyperLlamaAttention(LlamaAttention):
         nn.init.xavier_uniform_(self.input_compressor.weight)
         nn.init.xavier_uniform_(self.output_expander.weight)
     def forward(self, hidden_states, genome_vec, attention_mask=None, use_cache=False, token_position=0):
+        print(f"[DEBUG] HyperLlamaAttention forward: hidden_states.shape={hidden_states.shape}, genome_vec.shape={genome_vec.shape}, token_position={token_position}")
         B, T, E = hidden_states.shape
         # Project genome vector
         z_proj = self.genome_proj(genome_vec, self.layer_idx, token_position)
@@ -124,6 +127,7 @@ class HyperLlamaMLP(nn.Module):
     MLP with ALL 14 innovations integrated
     """
     def __init__(self, config, genome_proj: nn.Module, hyper_hidden: int, M: int = 16, rank: int = 32, genome_dim: int = 96):
+        print(f"[DEBUG] HyperLlamaMLP init: hyper_hidden={hyper_hidden}, M={M}, rank={rank}, genome_dim={genome_dim}")
         super().__init__()
         self.genome_proj = genome_proj
         
@@ -145,6 +149,7 @@ class HyperLlamaMLP(nn.Module):
         nn.init.xavier_uniform_(self.input_compressor.weight)
         nn.init.xavier_uniform_(self.output_expander.weight)
     def forward(self, hidden_states: torch.Tensor, genome_vec: torch.Tensor, token_position: int = 0, use_cache=False):
+        print(f"[DEBUG] HyperLlamaMLP forward: hidden_states.shape={hidden_states.shape}, genome_vec.shape={genome_vec.shape}, token_position={token_position}, use_cache={use_cache}")
         B, T, E = hidden_states.shape
         # Project genome vector
         z_proj = self.genome_proj(genome_vec, token_position=token_position)

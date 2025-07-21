@@ -54,6 +54,7 @@ class TrainingConfig:
     expert_loss_weights: Dict[str, float] = None
     
     def __post_init__(self):
+        print(f"[DEBUG] TrainingConfig: {self.__dict__}")
         if self.expert_types is None:
             self.expert_types = ["math", "code", "creative", "general"]
         if self.expert_loss_weights is None:
@@ -76,6 +77,7 @@ class ExpertDataset(Dataset):
         if expert_type != "all":
             self.df = self.df[self.df['expert_type'] == expert_type]
         print(f"📊 Loaded {len(self.df)} samples for expert '{expert_type}'")
+        print(f"[DEBUG] Dataset shape: {self.df.shape}")
 
     def __len__(self):
         return len(self.df)
@@ -110,6 +112,7 @@ class ExpertDataset(Dataset):
 
 class HyperNetworkTrainer:
     def compute_perplexity(self, data_loader) -> float:
+        print(f"[DEBUG] compute_perplexity: batch_size={getattr(self.config, 'batch_size', None)}")
         """Compute perplexity using our compressed hypernetwork architecture."""
         self.hypernetwork.eval()
         self.genome_manager.eval()
@@ -640,6 +643,7 @@ def main():
         num_experts=4
     )
     print(f"⚡ Batch size for training: {config.batch_size}")
+    print(f"[DEBUG] Training config: {config.__dict__}")
     
     # Override for quick test
     if args.quick_test:

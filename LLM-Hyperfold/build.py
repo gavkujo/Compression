@@ -30,6 +30,9 @@ class UniversalHyperNetwork(nn.Module):
                  enable_streaming: bool = True,
                  enable_temporal: bool = True,
                  max_hidden_size: int = 5120):
+        print(f"[DEBUG] UniversalHyperNetwork init: genome_dim={genome_dim}, hyper_hidden={hyper_hidden}, enable_streaming={enable_streaming}, enable_temporal={enable_temporal}, max_hidden_size={max_hidden_size}")
+        if target_configs:
+            print(f"[DEBUG] Target configs: {target_configs}")
         super().__init__()
         
         # Store configuration
@@ -76,6 +79,7 @@ class UniversalHyperNetwork(nn.Module):
                         target_shape: tuple, 
                         target_model: str = "350M",
                         token_position: int = 0) -> torch.Tensor:
+        print(f"[DEBUG] generate_weights: shape={target_shape}, model={target_model}, token_position={token_position}")
         """Generate weights for any target shape using the genome"""
         
         # Handle batch dimension
@@ -102,6 +106,7 @@ class UniversalHyperNetwork(nn.Module):
             return self._fast_approximation(z, out_dim, in_dim)
     
     def _hierarchical_generation(self, z: torch.Tensor, out_dim: int, in_dim: int) -> torch.Tensor:
+        print(f"[DEBUG] _hierarchical_generation: out_dim={out_dim}, in_dim={in_dim}, z.shape={z.shape}")
         """Generate weights using hierarchical coarse-to-fine approach"""
         # Gating
         gate_logits = self.gating(z)
@@ -147,6 +152,7 @@ class UniversalHyperNetwork(nn.Module):
         return weight
     
     def _temporal_update(self, z: torch.Tensor, out_dim: int, in_dim: int) -> torch.Tensor:
+        print(f"[DEBUG] _temporal_update: out_dim={out_dim}, in_dim={in_dim}, z.shape={z.shape}")
         """Ultra-fast temporal weight inheritance"""
         if self.weight_memory is None:
             return self._hierarchical_generation(z, out_dim, in_dim)
@@ -166,6 +172,7 @@ class UniversalHyperNetwork(nn.Module):
         return self.weight_memory
     
     def _streaming_generation(self, z: torch.Tensor, out_dim: int, in_dim: int) -> torch.Tensor:
+        print(f"[DEBUG] _streaming_generation: out_dim={out_dim}, in_dim={in_dim}, z.shape={z.shape}")
         """Memory-efficient streaming generation"""
         # Simplified streaming - process in chunks
         chunk_size = 64
@@ -182,6 +189,7 @@ class UniversalHyperNetwork(nn.Module):
         return torch.cat(chunks, dim=0)
     
     def _fast_approximation(self, z: torch.Tensor, out_dim: int, in_dim: int) -> torch.Tensor:
+        print(f"[DEBUG] _fast_approximation: out_dim={out_dim}, in_dim={in_dim}, z.shape={z.shape}")
         """Emergency ultra-fast mode"""
         # Use only 2 basis matrices for maximum speed
         gate_logits = self.gating(z)
@@ -201,6 +209,7 @@ class UniversalHyperNetwork(nn.Module):
         return weight
     
     def reset_sequence(self):
+        print(f"[DEBUG] reset_sequence called")
         """Reset for new sequence"""
         self.weight_memory = None
         self.current_token_pos = 0
@@ -212,6 +221,7 @@ class MOEGenomeManager(nn.Module):
                  genome_dim: int = 96,
                  num_experts: int = 4,
                  expert_types: List[str] = None):
+        print(f"[DEBUG] MOEGenomeManager init: genome_dim={genome_dim}, num_experts={num_experts}, expert_types={expert_types}")
         super().__init__()
         
         self.genome_dim = genome_dim
@@ -234,6 +244,7 @@ class MOEGenomeManager(nn.Module):
                          expert_type: str,
                          global_context: torch.Tensor = None,
                          position_id: int = 0) -> torch.Tensor:
+        print(f"[DEBUG] get_expert_genome: expert_type={expert_type}, position_id={position_id}")
         """Get genome for specific expert with context and position"""
         
         if expert_type not in self.expert_genomes:
@@ -253,6 +264,7 @@ class MOEGenomeManager(nn.Module):
         return base_genome
     
     def route_expert(self, context: torch.Tensor) -> tuple:
+        print(f"[DEBUG] route_expert: context.shape={context.shape}")
         """Route to best expert based on context"""
         expert_probs = torch.softmax(self.expert_router(context), dim=-1)
         expert_idx = torch.argmax(expert_probs).item()
@@ -269,6 +281,7 @@ def build_universal_system(target_model_size: str = "350M"):
     config_params = MODEL_CONFIGS[target_model_size]
     
     print(f"🏗️ Building Universal HyperFold System for {target_model_size} model...")
+    print(f"[DEBUG] Model config: {config_params}")
     
     # **1. Target model configuration**
     target_config = LlamaConfig(
@@ -302,6 +315,7 @@ def build_universal_system(target_model_size: str = "350M"):
     print(f"   Total compressed: {total_compressed/1e6:.2f}M parameters")
     print(f"   🚀 Compression ratio: {compression_ratio:.1f}x")
     print(f"   💾 Genome storage: {genome_params*4/1024:.2f}KB")
+    print(f"[DEBUG] Compression requirements: ratio={compression_ratio:.2f}, genome_storage_mb={genome_storage_mb:.2f}")
     
     # **5. Verify compression requirements**
     genome_storage_mb = (genome_params * 4) / (1024 * 1024)  # Convert to MB
@@ -358,6 +372,7 @@ def save_system(system: Dict[str, Any], save_dir: str = "hyperfold_system"):
     with open(f"{save_dir}/metadata.json", "w") as f:
         json.dump(metadata, f)
     print(f"💾 System saved to {save_dir}/")
+    print(f"[DEBUG] System metadata: {metadata}")
 
 if __name__ == "__main__":
     # Test with different model sizes
