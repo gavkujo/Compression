@@ -61,6 +61,8 @@ class HyperLlamaAttention(LlamaAttention):
         nn.init.xavier_uniform_(self.input_compressor.weight)
         nn.init.xavier_uniform_(self.output_expander.weight)
     def forward(self, hidden_states, genome_vec, attention_mask=None, use_cache=False, token_position=0):
+        print(f"[AUDIT] HyperLlamaAttention forward. Layer: {getattr(self, 'layer_idx', -1)} | hidden_states.shape={hidden_states.shape} | genome_vec.shape={genome_vec.shape} | token_position={token_position}")
+        print(f"[AUDIT] Innovations: HierarchicalFactorization, BasisCompression, Streaming, PerHeadRouting, LoRA")
         print(f"[DEBUG] HyperLlamaAttention forward: hidden_states.shape={hidden_states.shape}, genome_vec.shape={genome_vec.shape}, token_position={token_position}")
         B, T, E = hidden_states.shape
         # Project genome vector

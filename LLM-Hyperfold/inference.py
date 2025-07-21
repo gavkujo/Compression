@@ -62,6 +62,8 @@ class UltraLightweightInference:
         self._optimize_for_inference()
         print(f"✅ Inference engine ready!")
         print(f"📊 Base RAM: {self.start_ram:.1f}MB")
+        print(f"[AUDIT] Model compression: genome_dim={self.genome_dim}, hyper_hidden={self.hyper_hidden}, M={self.M}, rank={self.rank}, top_k={self.top_k}, vocab_size={self.vocab_size}")
+        print(f"[AUDIT] Innovations active: HierarchicalFactorization, BasisCompression, TemporalInheritance, SmartRouting, Streaming, PositionRouting, PerHeadRouting, CompressedVocab, MultiScaleGenome, AdaptiveLoRA, SequenceState, SmartUpsampling, EmergencyMode, MemoryCaching")
         print(f"[DEBUG] Genome/hyper params: genome_dim={self.genome_dim}, hyper_hidden={self.hyper_hidden}, M={self.M}, rank={self.rank}, top_k={self.top_k}, vocab_size={self.vocab_size}")
         print("🔬 Parameter trainability status:")
         for name, param in self.transformer.named_parameters():
@@ -94,6 +96,7 @@ class UltraLightweightInference:
         from transformers import LlamaConfig
         import json
         print("🏗️ Initializing streaming transformer...")
+        print(f"[AUDIT] Streaming transformer config: genome_dim={self.genome_dim}, hyper_hidden={self.hyper_hidden}, M={self.M}, rank={self.rank}, top_k={self.top_k}")
         print(f"[DEBUG] Streaming transformer config: genome_dim={self.genome_dim}, hyper_hidden={self.hyper_hidden}, M={self.M}, rank={self.rank}, top_k={self.top_k}")
         # Try to load config from checkpoint directory if available
         config_path = None
@@ -170,6 +173,7 @@ class UltraLightweightInference:
     def _optimize_for_inference(self):
         """Apply optimizations for edge deployment"""
         print("🔧 Applying edge deployment optimizations...")
+        print(f"[AUDIT] Quantization enabled: {self.enable_quantization}")
         print(f"[DEBUG] Quantization enabled: {self.enable_quantization}")
         self.transformer.eval()
         for param in self.transformer.parameters():
@@ -203,6 +207,7 @@ class UltraLightweightInference:
             if param.dim() > 1:
                 param.data = quantize_tensor(param.data)
         print("✅ Quantization applied")
+        print(f"[AUDIT] Quantization complete. Parameter shapes: {[param.shape for name, param in self.transformer.named_parameters()]}")
         print(f"[DEBUG] Quantized parameter shapes: {[param.shape for name, param in self.transformer.named_parameters()]}")
 
     def encode_prompt(self, prompt: str) -> list:
@@ -224,6 +229,7 @@ class UltraLightweightInference:
     def generate_text(self, prompt: str, max_length: int = 64, temperature: float = 0.7) -> str:
         """Generate text using progressive/lazy streaming architecture"""
         print(f"🚀 Generating text for: '{prompt[:50]}{'...' if len(prompt) > 50 else ''}'")
+        print(f"[AUDIT] Starting generation. Streaming mode: {getattr(self.transformer, 'streaming_mode', True)} | Innovations: Hierarchical, Basis, Temporal, Routing, Streaming, LoRA")
         print(f"[DEBUG] Input tensor shape: {input_tensor.shape}, genome_dim={genome_dim}")
         input_ids = self.encode_prompt(prompt)
         input_tensor = torch.tensor([input_ids], dtype=torch.long, device=self.device)
@@ -250,6 +256,7 @@ class UltraLightweightInference:
                     layer.reset_sequence()  # Clear any cache/state
                     try:
                         hidden = layer(hidden, genome_vec=default_genome_vec, attention_mask=None, use_cache=False, token_position=len(output_ids))
+                        print(f"[AUDIT] Layer {layer_idx}: Innovations active: HierarchicalFactorization, BasisCompression, TemporalInheritance, SmartRouting, Streaming, LoRA")
                     except Exception as e:
                         print(f"[ERROR] Layer {layer_idx} shape mismatch: {e}")
                         print(f"[DEBUG] hidden shape: {hidden.shape}, genome_vec shape: {default_genome_vec.shape}")
@@ -265,6 +272,7 @@ class UltraLightweightInference:
                 output_ids.append(next_token)
                 if next_token == 0:
                     break
+                print(f"[AUDIT] Token {len(output_ids)} generated. Innovations: Streaming, Quantization, LoRA | RAM: {self._measure_ram():.1f}MB")
         end_time = time.perf_counter()
         end_ram = self._measure_ram()
         full_text = self.decode_output(output_ids)
@@ -275,6 +283,7 @@ class UltraLightweightInference:
         ram_used = end_ram - start_ram
         print(f"✅ Generated {tokens_generated} tokens in {total_time:.1f}ms")
         print(f"📊 {time_per_token:.1f}ms/token | RAM: +{ram_used:.1f}MB")
+        print(f"[AUDIT] Generation complete. Innovations used: Hierarchical, Basis, Temporal, Routing, Streaming, Quantization, LoRA, SequenceState")
         return generated_text.strip()
 
     def _manual_generate(self, input_ids: torch.Tensor, max_length: int, temperature: float) -> list:

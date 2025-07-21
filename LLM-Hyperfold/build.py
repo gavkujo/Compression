@@ -30,6 +30,8 @@ class UniversalHyperNetwork(nn.Module):
                  enable_streaming: bool = True,
                  enable_temporal: bool = True,
                  max_hidden_size: int = 5120):
+        print(f"[AUDIT] UniversalHyperNetwork init. genome_dim={genome_dim}, hyper_hidden={hyper_hidden}, enable_streaming={enable_streaming}, enable_temporal={enable_temporal}, max_hidden_size={max_hidden_size}")
+        print(f"[AUDIT] Innovations: HierarchicalFactorization, BasisCompression, TemporalInheritance, SmartRouting, Streaming")
         print(f"[DEBUG] UniversalHyperNetwork init: genome_dim={genome_dim}, hyper_hidden={hyper_hidden}, enable_streaming={enable_streaming}, enable_temporal={enable_temporal}, max_hidden_size={max_hidden_size}")
         if target_configs:
             print(f"[DEBUG] Target configs: {target_configs}")

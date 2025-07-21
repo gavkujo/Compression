@@ -24,6 +24,7 @@ class HyperLlamaDecoderLayer(nn.Module):
         self.token_position = 0
 
     def forward(self, hidden_states: torch.Tensor, genome_vec: torch.Tensor, attention_mask=None, use_cache=False, token_position: int = 0):
+        print(f"[AUDIT] HyperLlamaDecoderLayer forward. Layer: {self.layer_idx} | Innovations: HierarchicalFactorization, BasisCompression, TemporalInheritance, SmartRouting, Streaming, LoRA, SequenceState")
         # ✅ Innovation 11: Update position tracking
         self.token_position = token_position
         

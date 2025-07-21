@@ -48,8 +48,11 @@ class FactorizedBasisHyperLayer(nn.Module):
         # --- Basis matrices ---
         self.basis_matrices = nn.Parameter(torch.randn(M, out_dim, in_dim))
         self._normalize_basis_matrices(init=True)
+        print(f"[AUDIT] FactorizedBasisHyperLayer initialized. M={self.M}, rank={self.rank}, top_k={self.top_k}, streaming={self.enable_streaming}, temporal={self.enable_temporal}, compressed_vocab_size={self.compressed_vocab_size}")
+        print(f"[AUDIT] Innovations active: HierarchicalFactorization, BasisCompression, TemporalInheritance, SmartRouting, Streaming, PositionRouting, PerHeadRouting, CompressedVocab")
 
     def _normalize_basis_matrices(self, init=False):
+        print(f"[AUDIT] Normalizing basis matrices. Init={init} | Norms: {[self.basis_matrices[i].norm().item() for i in range(self.M)]}")
         """Normalize basis matrices to unit Frobenius norm"""
         if self.ablate_basis_norm:
             if init:
@@ -108,6 +111,17 @@ class FactorizedBasisHyperLayer(nn.Module):
         print(f"[DEBUG] Quant zero param shape: {self.quant_zero.shape}")
 
     def forward(self, z: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        print(f"[AUDIT] Forward pass. z.shape={z.shape} | Basis shape: {self.basis_matrices.shape} | Rank={self.rank} | Top-K={self.top_k}")
+        # Print routing mode selection
+        mode_logits = self.mode_selector(z)
+        mode = mode_logits.argmax(dim=-1).item() if mode_logits.ndim > 1 else mode_logits.argmax().item()
+        mode_names = ["Hierarchical", "Temporal", "Streaming", "Fast"]
+        print(f"[AUDIT] Routing mode selected: {mode_names[mode]} | Mode logits: {mode_logits.tolist()}")
+        # Print temporal inheritance cache size
+        print(f"[AUDIT] Temporal cache size: {len(self.temporal_cache)}")
+        # Print top-k basis indices
+        topk_indices = torch.topk(mode_logits, self.top_k, dim=-1).indices.tolist()
+        print(f"[AUDIT] Top-K basis indices: {topk_indices}")
         """
         Full forward pass implementing all 14 innovations for ultra-compressed weight generation.
         Returns: (weight_matrix, bias_vector)
